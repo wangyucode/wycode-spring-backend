@@ -3,25 +3,24 @@ package cn.wycode.web.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.*
 import javax.persistence.*
-import javax.persistence.GeneratedValue
 
 
 @Entity
 @Deprecated("老版剪切板，9月1日删除", replaceWith = ReplaceWith("WXClipboard"))
-data class Clipboard(var createDate: Date, var lastUpdate: Date, var content: String) {
+data class Clipboard(var createDate: Date = Date(), var lastUpdate: Date = Date(), var content: String = "") {
     @Id
     var id: Long? = null
 }
 
 @Entity
-data class ClipboardSuggest(var createDate: Date, var content: String, var contact: String?) {
+data class ClipboardSuggest(var createDate: Date = Date(), var content: String = "", var contact: String?="") {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
 }
 
 @Entity
-data class FishBaike(var type: String, var title: String, var detail: String, var imageName: String, var createDate: Date) {
+data class FishBaike(var type: String = "", var title: String = "", var detail: String = "", var imageName: String = "", var createDate: Date = Date()) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
@@ -29,7 +28,7 @@ data class FishBaike(var type: String, var title: String, var detail: String, va
 }
 
 @Entity
-data class FishUser(@JsonIgnore var openId: String) {
+data class FishUser(@JsonIgnore var openId: String = "") {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
@@ -46,7 +45,7 @@ data class FishUser(@JsonIgnore var openId: String) {
 }
 
 @Entity
-data class FishQuestion(var title: String, var content: String, @ManyToOne var user: FishUser, @ElementCollection var images: List<String>) {
+data class FishQuestion(var title: String = "", var content: String = "", @ManyToOne var user: FishUser = FishUser(), @ElementCollection var images: List<String> = listOf()) {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
@@ -55,7 +54,7 @@ data class FishQuestion(var title: String, var content: String, @ManyToOne var u
 }
 
 @Entity
-data class FishQuestionAnswer(var content: String, @ManyToOne var question: FishQuestion, @ManyToOne var user: FishUser) {
+data class FishQuestionAnswer(var content: String = "", @ManyToOne var question: FishQuestion = FishQuestion(), @ManyToOne var user: FishUser = FishUser()) {
     @Id
     @GeneratedValue
     val id: Long? = null
@@ -76,14 +75,14 @@ data class FishQuestionAnswer(var content: String, @ManyToOne var question: Fish
 }
 
 @Entity
-data class FishSuggest(var createDate: Date, var content: String, var contact: String?) {
+data class FishSuggest(var createDate: Date= Date(), var content: String="", var contact: String?="") {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: Long? = null
 }
 
 @Entity
-data class WXClipboard(@Id val id: String, @JsonIgnore var openid: String, @Column(length = 2000) var content: String) {
+data class WXClipboard(@Id val id: String="", @JsonIgnore var openid: String="", @Column(length = 2000) var content: String="") {
     var key: String = ""
     var tips: String = ""
     var createTime: Date = Date()
