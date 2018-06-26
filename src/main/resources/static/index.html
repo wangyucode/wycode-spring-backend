@@ -84,8 +84,8 @@
     window.onload = function () {
 
         // Build a system
-        const ui = SwaggerUIBundle({
-            url: "/web/v2/api-docs",
+        var ui = SwaggerUIBundle({
+            url: "/v2/api-docs",
             dom_id: '#swagger-ui',
             deepLinking: true,
             presets: [
@@ -96,7 +96,7 @@
                 SwaggerUIBundle.plugins.DownloadUrl
             ],
             layout: "StandaloneLayout"
-        })
+        });
         window.ui = ui
     }
 </script>
