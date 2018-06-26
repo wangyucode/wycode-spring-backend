@@ -25,6 +25,10 @@ apply plugin: 'io.spring.dependency-management'
 group = 'cn.wycode'
 sourceCompatibility = 1.8
 
+bootJar {
+    baseName = 'web'
+}
+
 repositories {
     mavenCentral()
     jcenter()
