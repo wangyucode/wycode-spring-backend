@@ -54,7 +54,6 @@ public class WXSessionServiceImpl implements WXSessionService {
         restTemplate.getInterceptors().add((request, body, execution) -> {
             ClientHttpResponse response = execution.execute(request, body);
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            log.info(response);
             return response;
         });
     }
