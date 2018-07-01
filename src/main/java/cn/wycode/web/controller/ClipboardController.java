@@ -78,7 +78,7 @@ public class ClipboardController {
         if (p != null) {
             p.setContent(content);
             p.setTips(tips);
-            p.setUpdateTime(new Date());
+            p.setLastUpdate(new Date());
             p = wxClipboardRepository.save(p);
         }
         return JsonResult.builder().data(p).build();

@@ -13,10 +13,10 @@ data class Clipboard(var createDate: Date = Date(), var lastUpdate: Date = Date(
 }
 
 @Entity
-data class ClipboardSuggest(var createDate: Date = Date(), var content: String = "", var contact: String?="") {
+data class ClipboardSuggest(var createDate: Date = Date(), var content: String = "", var contact: String? = "") {
     @Id
     @GeneratedValue(generator = "seq_clipboard_suggest")
-    @SequenceGenerator(name="seq_clipboard_suggest",sequenceName = "SEQ_CLIPBOARD_SUGGEST",allocationSize = 1,initialValue = 50)
+    @SequenceGenerator(name = "seq_clipboard_suggest", sequenceName = "SEQ_CLIPBOARD_SUGGEST", allocationSize = 1, initialValue = 50)
     val id: Long? = null
 }
 
@@ -24,7 +24,7 @@ data class ClipboardSuggest(var createDate: Date = Date(), var content: String =
 data class FishBaike(var type: String = "", var title: String = "", var detail: String = "", var imageName: String = "", var createDate: Date = Date()) {
     @Id
     @GeneratedValue(generator = "seq_fish_baike")
-    @SequenceGenerator(name="seq_fish_baike",sequenceName = "SEQ_FISH_BAIKE",allocationSize = 1,initialValue = 50)
+    @SequenceGenerator(name = "seq_fish_baike", sequenceName = "SEQ_FISH_BAIKE", allocationSize = 1, initialValue = 50)
     val id: Long? = null
     var readCount: Int = 0
 }
@@ -33,7 +33,7 @@ data class FishBaike(var type: String = "", var title: String = "", var detail: 
 data class FishUser(@JsonIgnore var openId: String = "") {
     @Id
     @GeneratedValue(generator = "seq_fish_user")
-    @SequenceGenerator(name="seq_fish_user",sequenceName = "SEQ_FISH_USER",allocationSize = 1,initialValue = 1070)
+    @SequenceGenerator(name = "seq_fish_user", sequenceName = "SEQ_FISH_USER", allocationSize = 1, initialValue = 1070)
     val id: Long? = null
     var nickName: String? = null
     var avatarUrl: String? = null
@@ -51,7 +51,7 @@ data class FishUser(@JsonIgnore var openId: String = "") {
 data class FishQuestion(var title: String = "", var content: String = "", @ManyToOne var user: FishUser = FishUser(), @ElementCollection var images: List<String> = listOf()) {
     @Id
     @GeneratedValue(generator = "seq_fish_question")
-    @SequenceGenerator(name="seq_fish_question",sequenceName = "SEQ_FISH_QUESTION",allocationSize = 1,initialValue = 200)
+    @SequenceGenerator(name = "seq_fish_question", sequenceName = "SEQ_FISH_QUESTION", allocationSize = 1, initialValue = 200)
     val id: Long? = null
     var createTime: Date = Date()
     var updateTime: Date = createTime
@@ -61,7 +61,7 @@ data class FishQuestion(var title: String = "", var content: String = "", @ManyT
 data class FishQuestionAnswer(var content: String = "", @ManyToOne var question: FishQuestion = FishQuestion(), @ManyToOne var user: FishUser = FishUser()) {
     @Id
     @GeneratedValue(generator = "seq_fish_question_answer")
-    @SequenceGenerator(name="seq_fish_question_answer",sequenceName = "SEQ_FISH_QUESTION_ANSWER",allocationSize = 1,initialValue = 200)
+    @SequenceGenerator(name = "seq_fish_question_answer", sequenceName = "SEQ_FISH_QUESTION_ANSWER", allocationSize = 1, initialValue = 200)
     val id: Long? = null
     var up: Int = 0
     var down: Int = 0
@@ -80,17 +80,17 @@ data class FishQuestionAnswer(var content: String = "", @ManyToOne var question:
 }
 
 @Entity
-data class FishSuggest(var createDate: Date= Date(), var content: String="", var contact: String?="") {
+data class FishSuggest(var createDate: Date = Date(), var content: String = "", var contact: String? = "") {
     @Id
     @GeneratedValue(generator = "seq_fish_suggest")
-    @SequenceGenerator(name="seq_fish_suggest",sequenceName = "SEQ_FISH_SUGGEST",allocationSize = 1,initialValue = 50)
+    @SequenceGenerator(name = "seq_fish_suggest", sequenceName = "SEQ_FISH_SUGGEST", allocationSize = 1, initialValue = 50)
     val id: Long? = null
 }
 
 @Entity
-data class WXClipboard(@Id val id: String="", @JsonIgnore var openid: String="", @Column(length = 2000) var content: String="") {
+data class WXClipboard(@Id val id: String = "", @JsonIgnore var openid: String = "", @Column(length = 2000) var content: String = "") {
     var key: String = ""
     var tips: String = ""
-    var createTime: Date = Date()
-    var updateTime: Date = createTime
+    var createDate: Date = Date()
+    var lastUpdate: Date = createDate
 }
