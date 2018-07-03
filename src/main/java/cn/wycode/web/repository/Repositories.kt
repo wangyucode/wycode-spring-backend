@@ -29,9 +29,8 @@ interface FishBaikeRepository : CrudRepository<FishBaike, Long> {
 
 @Repository
 interface FishQuestionRepository : PagingAndSortingRepository<FishQuestion, Long> {
-    @Deprecated("已用分页替代，下个小程序版本删除")
-    fun findByOrderByUpdateTimeDesc(): List<FishQuestion>
     fun findByOrderByUpdateTimeDesc(page: Pageable): Page<FishQuestion>
+    fun findByUser_Key(accessKey: String):List<FishQuestion>
 }
 
 @Repository

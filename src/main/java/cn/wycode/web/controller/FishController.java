@@ -103,7 +103,7 @@ public class FishController {
                 try {
                     storageService.moveTempFileToFolder(image, questionFolder);
                 } catch (IOException e) {
-                    log.error("文件挪动失败，文件:" + image + ",文件夹:" + questionFolder,e);
+                    log.error("文件挪动失败，文件:" + image + ",文件夹:" + questionFolder, e);
                 }
             }
         }
@@ -116,6 +116,13 @@ public class FishController {
     public JsonResult<Page<FishQuestion>> getQuestions(@RequestParam int page, @RequestParam int size) {
         PageRequest request = new PageRequest(page, size);
         Page<FishQuestion> questions = questionRepository.findByOrderByUpdateTimeDesc(request);
+        return JsonResult.builder().data(questions).build();
+    }
+
+    @ApiOperation(value = "获取我的问题列表")
+    @RequestMapping(method = RequestMethod.GET, path = "/getMyQuestions")
+    public JsonResult<List<FishQuestion>> getMyQuestions(@RequestParam String accessKey) {
+        List<FishQuestion> questions = questionRepository.findByUser_Key(accessKey);
         return JsonResult.builder().data(questions).build();
     }
 
