@@ -48,7 +48,7 @@ data class FishUser(@JsonIgnore var openId: String = "") {
 }
 
 @Entity
-data class FishQuestion(var title: String = "", var content: String = "", @ManyToOne var user: FishUser = FishUser(), @ElementCollection var images: List<String> = listOf()) {
+data class FishQuestion(var title: String = "", var content: String = "", @ManyToOne var user: FishUser = FishUser(), @ElementCollection var images: List<String>? = listOf()) {
     @Id
     @GeneratedValue(generator = "seq_fish_question")
     @SequenceGenerator(name = "seq_fish_question", sequenceName = "SEQ_FISH_QUESTION", allocationSize = 1, initialValue = 200)

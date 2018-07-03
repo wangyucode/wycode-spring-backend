@@ -114,16 +114,28 @@ public class FishController {
     @ApiOperation(value = "分页获取问题列表")
     @RequestMapping(method = RequestMethod.GET, path = "/getQuestionsPage")
     public JsonResult<Page<FishQuestion>> getQuestions(@RequestParam int page, @RequestParam int size) {
-        PageRequest request = new PageRequest(page, size);
+        PageRequest request = PageRequest.of(page, size);
         Page<FishQuestion> questions = questionRepository.findByOrderByUpdateTimeDesc(request);
         return JsonResult.builder().data(questions).build();
     }
 
     @ApiOperation(value = "获取我的问题列表")
-    @RequestMapping(method = RequestMethod.GET, path = "/getMyQuestions")
-    public JsonResult<List<FishQuestion>> getMyQuestions(@RequestParam String accessKey) {
-        List<FishQuestion> questions = questionRepository.findByUser_Key(accessKey);
+    @RequestMapping(method = RequestMethod.GET, path = "/getMyQuestionsPage")
+    public JsonResult<Page<FishQuestion>> getMyQuestions(@RequestParam int page, @RequestParam int size,@RequestParam String accessKey) {
+        PageRequest request = PageRequest.of(page, size);
+        Page<FishQuestion> questions = questionRepository.findByUser_Key(accessKey,request);
         return JsonResult.builder().data(questions).build();
+    }
+
+    @ApiOperation(value = "获取我的回答")
+    @RequestMapping(method = RequestMethod.GET, path = "/getMyAnswers")
+    public JsonResult<List<FishQuestionAnswer>> getMyAnswers(@RequestParam String accessKey) {
+        ArrayList<Sort.Order> orderArrayList = new ArrayList<>(2);
+        orderArrayList.add(new Sort.Order(Sort.Direction.DESC, "value"));
+        orderArrayList.add(new Sort.Order(Sort.Direction.ASC, "createTime"));
+        Sort orders = Sort.by(orderArrayList);
+        List<FishQuestionAnswer> answers = answerRepository.findByUser_Key(accessKey,orders);
+        return JsonResult.builder().data(answers).build();
     }
 
     @ApiOperation(value = "获取问题")
@@ -139,7 +151,7 @@ public class FishController {
         ArrayList<Sort.Order> orderArrayList = new ArrayList<>(2);
         orderArrayList.add(new Sort.Order(Sort.Direction.DESC, "value"));
         orderArrayList.add(new Sort.Order(Sort.Direction.ASC, "createTime"));
-        Sort orders = new Sort(orderArrayList);
+        Sort orders = Sort.by(orderArrayList);
         List<FishQuestionAnswer> answers = answerRepository.findAllByQuestion_Id(id, orders);
         return JsonResult.builder().data(answers).build();
     }

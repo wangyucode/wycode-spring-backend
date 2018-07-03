@@ -20,6 +20,7 @@ interface ClipboardSuggestRepository : CrudRepository<ClipboardSuggest, Long>
 @Repository
 interface FishAnswerRepository : PagingAndSortingRepository<FishQuestionAnswer, Long> {
     fun findAllByQuestion_Id(questionId: Long, orders: Sort): List<FishQuestionAnswer>
+    fun findByUser_Key(accessKey: String,orders: Sort):List<FishQuestionAnswer>
 }
 
 @Repository
@@ -30,7 +31,7 @@ interface FishBaikeRepository : CrudRepository<FishBaike, Long> {
 @Repository
 interface FishQuestionRepository : PagingAndSortingRepository<FishQuestion, Long> {
     fun findByOrderByUpdateTimeDesc(page: Pageable): Page<FishQuestion>
-    fun findByUser_Key(accessKey: String):List<FishQuestion>
+    fun findByUser_Key(accessKey: String,page: Pageable):Page<FishQuestion>
 }
 
 @Repository
