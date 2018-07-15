@@ -31,13 +31,12 @@ data class FishBaike(var type: String = "", var title: String = "", var detail: 
 
 //图鉴表
 @Entity
-data class FishHandBook(var handBookName: String = "", var handBookDetail: String, var handBookImageUrl: String= "",var createDate: Date = Date(), var type: String = "") {
+data class FishHandBook(var handBookName: String = "", var handBookDetail: String = "", var handBookImageUrl: String = "", var createDate: Date = Date(), var type: String = "") {
     @Id
     @GeneratedValue(generator = "seq_fish_hand_book")
-    @SequenceGenerator(name = "seq_fish_hand_book", sequenceName = "SEQ_FISH_HAND_BOOK", allocationSize = 1, initialValue = 50)
+    @SequenceGenerator(name = "seq_fish_hand_book", sequenceName = "SEQ_FISH_HAND_BOOK", allocationSize = 1, initialValue = 1)
     val id: Long? = null
     var collectCount: Int = 0
-    var readCount: Int = 0
 }
 
 @Entity

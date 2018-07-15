@@ -74,15 +74,6 @@ public class FishController {
         FishHandBook fishHandBook = new FishHandBook(handBookName,handBookDetail,handBookImageUrl,new Date(),type);
         return JsonResult.builder().data(fishHandBookRepository.save(fishHandBook)).build();
     }
-    @ApiOperation(value = "增加图鉴阅读量")
-    public JsonResult<FishHandBook> addHandBookReadCount (@RequestParam long id) {
-        FishHandBook fishHandBook = fishHandBookRepository.findById(id).orElse(null);
-        if(fishHandBook != null){
-            fishHandBook.setReadCount(fishHandBook.getReadCount() + 1);
-            fishHandBook= fishHandBookRepository.save(fishHandBook);
-        }
-        return JsonResult.builder().data(fishHandBook).build();
-    }
 
     @ApiOperation(value = "图鉴收藏量")
     @RequestMapping(method = RequestMethod.GET, path = "/addcollectCount")
