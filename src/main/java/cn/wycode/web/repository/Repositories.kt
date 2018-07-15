@@ -29,6 +29,11 @@ interface FishBaikeRepository : CrudRepository<FishBaike, Long> {
 }
 
 @Repository
+interface  FishHandBookRepository: CrudRepository<FishHandBook, Long> {
+    fun findByTypeOrderByCollectCountDesc(type: String): List<FishHandBook>
+}
+
+@Repository
 interface FishQuestionRepository : PagingAndSortingRepository<FishQuestion, Long> {
     fun findByOrderByUpdateTimeDesc(page: Pageable): Page<FishQuestion>
     fun findByUser_Key(accessKey: String,page: Pageable):Page<FishQuestion>

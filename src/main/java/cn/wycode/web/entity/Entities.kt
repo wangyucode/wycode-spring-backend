@@ -29,6 +29,17 @@ data class FishBaike(var type: String = "", var title: String = "", var detail: 
     var readCount: Int = 0
 }
 
+//图鉴表
+@Entity
+data class FishHandBook(var handBookName: String = "", var handBookDetail: String, var handBookImageUrl: String= "",var createDate: Date = Date(), var type: String = "") {
+    @Id
+    @GeneratedValue(generator = "seq_fish_hand_book")
+    @SequenceGenerator(name = "seq_fish_hand_book", sequenceName = "SEQ_FISH_HAND_BOOK", allocationSize = 1, initialValue = 50)
+    val id: Long? = null
+    var collectCount: Int = 0
+    var readCount: Int = 0
+}
+
 @Entity
 data class FishUser(@JsonIgnore var openId: String = "") {
     @Id

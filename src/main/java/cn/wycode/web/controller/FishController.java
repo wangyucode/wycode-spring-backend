@@ -39,9 +39,10 @@ public class FishController {
     private final StorageService storageService;
     private final FishUserRepository userRepository;
     private final FishAnswerRepository answerRepository;
+    private final FishHandBookRepository fishHandBookRepository;
 
     @Autowired
-    public FishController(FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository) {
+    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository) {
         this.baikeRepository = baikeRepository;
         this.suggestRepository = suggestRepository;
         this.questionRepository = questionRepository;
@@ -49,6 +50,7 @@ public class FishController {
         this.storageService = storageService;
         this.userRepository = userRepository;
         this.answerRepository = answerRepository;
+        this.fishHandBookRepository = fishHandBookRepository;
     }
 
     @ApiOperation(value = "根据类型查询百科，按阅读量倒序排序")
@@ -56,6 +58,41 @@ public class FishController {
     public JsonResult<List<FishBaike>> getBaike(@RequestParam String type) {
         List<FishBaike> fishBaikes = baikeRepository.findByTypeOrderByReadCountDesc(type);
         return JsonResult.builder().data(fishBaikes).build();
+    }
+
+    @ApiOperation(value = "根据类型查询图鉴，按收藏量倒序排序")
+    @RequestMapping(method = RequestMethod.GET, path = "/getFishHandBook")
+    public JsonResult<List<FishHandBook>> getFishHandBook(@RequestParam String type) {
+        List<FishHandBook> fishHandBooks = fishHandBookRepository.findByTypeOrderByCollectCountDesc(type);
+        return JsonResult.builder().data(fishHandBooks).build();
+    }
+
+    @ApiOperation(value = "添加图鉴")
+    @RequestMapping(method = RequestMethod.POST, path = "/addFishHandBook")
+    public JsonResult<FishHandBook> getFishHandBook(@RequestParam String handBookName, @RequestParam String handBookDetail,
+                                                    @RequestParam String handBookImageUrl, @RequestParam String type) {
+        FishHandBook fishHandBook = new FishHandBook(handBookName,handBookDetail,handBookImageUrl,new Date(),type);
+        return JsonResult.builder().data(fishHandBookRepository.save(fishHandBook)).build();
+    }
+    @ApiOperation(value = "增加图鉴阅读量")
+    public JsonResult<FishHandBook> addHandBookReadCount (@RequestParam long id) {
+        FishHandBook fishHandBook = fishHandBookRepository.findById(id).orElse(null);
+        if(fishHandBook != null){
+            fishHandBook.setReadCount(fishHandBook.getReadCount() + 1);
+            fishHandBook= fishHandBookRepository.save(fishHandBook);
+        }
+        return JsonResult.builder().data(fishHandBook).build();
+    }
+
+    @ApiOperation(value = "图鉴收藏量")
+    @RequestMapping(method = RequestMethod.GET, path = "/addcollectCount")
+    public JsonResult<FishHandBook> addcollectCount (@RequestParam long id) {
+        FishHandBook fishHandBook = fishHandBookRepository.findById(id).orElse(null);
+        if(fishHandBook != null){
+            fishHandBook.setCollectCount(fishHandBook.getCollectCount() + 1);
+            fishHandBook= fishHandBookRepository.save(fishHandBook);
+        }
+        return JsonResult.builder().data(fishHandBook).build();
     }
 
     @ApiOperation(value = "增加阅读量")
@@ -71,7 +108,7 @@ public class FishController {
 
     @ApiOperation(value = "添加百科")
     @RequestMapping(method = RequestMethod.POST, path = "/addBaike")
-    public JsonResult<FishSuggest> addBaike(@RequestParam String type, @RequestParam String title, @RequestParam String detail, @RequestParam String imageName) {
+    public JsonResult<FishBaike> addBaike(@RequestParam String type, @RequestParam String title, @RequestParam String detail, @RequestParam String imageName) {
         FishBaike baike = new FishBaike(type, title, detail, imageName, new Date());
         return JsonResult.builder().data(baikeRepository.save(baike)).build();
     }
