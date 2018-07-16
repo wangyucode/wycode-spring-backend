@@ -40,7 +40,7 @@ public class FileController {
         } catch (IOException e) {
             log.error("文件保存失败", e);
         }
-        return JsonResult.builder().data(name).build();
+        return JsonResult.Companion.data(name);
     }
 
     @ApiOperation(value = "所有文件")
@@ -50,7 +50,7 @@ public class FileController {
         List<String> names = storageService.loadAll().map(
                 Path::toString)
                 .collect(Collectors.toList());
-        return JsonResult.builder().data(names).build();
+        return JsonResult.Companion.data(names);
     }
 
 }

@@ -51,7 +51,7 @@ public class ClipboardController {
     @RequestMapping(method = RequestMethod.GET, path = "/query")
     public JsonResult<Clipboard> query(@RequestParam long id) {
         Clipboard p = repository.findById(id).orElse(null);
-        return JsonResult.builder().data(p).build();
+        return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "通过WXKEY查询剪切板")
@@ -59,16 +59,16 @@ public class ClipboardController {
     public JsonResult<WXClipboard> queryByKey(@RequestParam String key) {
         WXClipboard p = wxClipboardRepository.findByKey(key);
         if (p == null) {
-            return JsonResult.builder().error("invalid key").build();
+            return JsonResult.Companion.error("invalid key");
         }
-        return JsonResult.builder().data(p).build();
+        return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "通过id查询剪切板")
     @RequestMapping(method = RequestMethod.GET, path = "/queryById")
     public JsonResult<WXClipboard> queryById(@RequestParam String id) {
         WXClipboard p = wxClipboardRepository.findById(id).orElse(null);
-        return JsonResult.builder().data(p).build();
+        return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "通过ID保存剪切板")
@@ -81,14 +81,14 @@ public class ClipboardController {
             p.setLastUpdate(new Date());
             p = wxClipboardRepository.save(p);
         }
-        return JsonResult.builder().data(p).build();
+        return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "意见反馈")
     @RequestMapping(method = RequestMethod.POST, path = "/suggest")
     public JsonResult<ClipboardSuggest> suggest(@RequestParam String content, @RequestParam String contact) {
         ClipboardSuggest suggest = new ClipboardSuggest(new Date(), content, contact);
-        return JsonResult.builder().data(suggestRepository.save(suggest)).build();
+        return JsonResult.Companion.data(suggestRepository.save(suggest));
     }
 
     @ApiOperation(value = "获取微信Session")
@@ -105,9 +105,9 @@ public class ClipboardController {
             }
             clipboard.setKey(accessKey); //一旦登录就刷新key
 
-            return JsonResult.builder().data(wxClipboardRepository.save(clipboard)).build();
+            return JsonResult.Companion.data(wxClipboardRepository.save(clipboard));
         } else {
-            return JsonResult.builder().error("未获取到session").build();
+            return JsonResult.Companion.error("未获取到session");
         }
     }
 

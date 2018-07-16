@@ -57,14 +57,14 @@ public class FishController {
     @RequestMapping(method = RequestMethod.GET, path = "/getBaike")
     public JsonResult<List<FishBaike>> getBaike(@RequestParam String type) {
         List<FishBaike> fishBaikes = baikeRepository.findByTypeOrderByReadCountDesc(type);
-        return JsonResult.builder().data(fishBaikes).build();
+        return JsonResult.Companion.data(fishBaikes);
     }
 
     @ApiOperation(value = "根据类型查询图鉴，按收藏量倒序排序")
     @RequestMapping(method = RequestMethod.GET, path = "/getFishHandBook")
     public JsonResult<List<FishHandBook>> getFishHandBook(@RequestParam String type) {
         List<FishHandBook> fishHandBooks = fishHandBookRepository.findByTypeOrderByCollectCountDesc(type);
-        return JsonResult.builder().data(fishHandBooks).build();
+        return JsonResult.Companion.data(fishHandBooks);
     }
 
     @ApiOperation(value = "添加图鉴")
@@ -72,7 +72,7 @@ public class FishController {
     public JsonResult<FishHandBook> getFishHandBook(@RequestParam String handBookName, @RequestParam String handBookDetail,
                                                     @RequestParam String handBookImageUrl, @RequestParam String type) {
         FishHandBook fishHandBook = new FishHandBook(handBookName,handBookDetail,handBookImageUrl,new Date(),type);
-        return JsonResult.builder().data(fishHandBookRepository.save(fishHandBook)).build();
+        return JsonResult.Companion.data(fishHandBookRepository.save(fishHandBook));
     }
 
     @ApiOperation(value = "图鉴收藏量")
@@ -83,7 +83,7 @@ public class FishController {
             fishHandBook.setCollectCount(fishHandBook.getCollectCount() + 1);
             fishHandBook= fishHandBookRepository.save(fishHandBook);
         }
-        return JsonResult.builder().data(fishHandBook).build();
+        return JsonResult.Companion.data(fishHandBook);
     }
 
     @ApiOperation(value = "增加阅读量")
@@ -94,21 +94,21 @@ public class FishController {
             baike.setReadCount(baike.getReadCount() + 1);
             baike = baikeRepository.save(baike);
         }
-        return JsonResult.builder().data(baike).build();
+        return JsonResult.Companion.data(baike);
     }
 
     @ApiOperation(value = "添加百科")
     @RequestMapping(method = RequestMethod.POST, path = "/addBaike")
     public JsonResult<FishBaike> addBaike(@RequestParam String type, @RequestParam String title, @RequestParam String detail, @RequestParam String imageName) {
         FishBaike baike = new FishBaike(type, title, detail, imageName, new Date());
-        return JsonResult.builder().data(baikeRepository.save(baike)).build();
+        return JsonResult.Companion.data(baikeRepository.save(baike));
     }
 
     @ApiOperation(value = "意见反馈")
     @RequestMapping(method = RequestMethod.POST, path = "/suggest")
     public JsonResult<FishSuggest> suggest(@RequestParam String content, @RequestParam String contact) {
         FishSuggest suggest = new FishSuggest(new Date(), content, contact);
-        return JsonResult.builder().data(suggestRepository.save(suggest)).build();
+        return JsonResult.Companion.data(suggestRepository.save(suggest));
     }
 
     @ApiOperation(value = "添加问题")
@@ -116,7 +116,7 @@ public class FishController {
     public JsonResult<FishQuestion> addQuestion(@RequestParam String accessKey, @RequestParam String content, @RequestParam String title, @RequestParam(required = false) String images) {
         FishUser user = userRepository.findByKey(accessKey);
         if (user == null) {
-            return JsonResult.builder().error("accessKey错误").build();
+            return JsonResult.Companion.error("accessKey错误");
         }
         List<String> imageList = null;
         if (!StringUtils.isEmpty(images)) {
@@ -136,7 +136,7 @@ public class FishController {
             }
         }
 
-        return JsonResult.builder().data(question).build();
+        return JsonResult.Companion.data(question);
     }
 
     @ApiOperation(value = "分页获取问题列表")
@@ -144,7 +144,7 @@ public class FishController {
     public JsonResult<Page<FishQuestion>> getQuestions(@RequestParam int page, @RequestParam int size) {
         PageRequest request = PageRequest.of(page, size);
         Page<FishQuestion> questions = questionRepository.findByOrderByUpdateTimeDesc(request);
-        return JsonResult.builder().data(questions).build();
+        return JsonResult.Companion.data(questions);
     }
 
     @ApiOperation(value = "获取我的问题列表")
@@ -152,7 +152,7 @@ public class FishController {
     public JsonResult<Page<FishQuestion>> getMyQuestions(@RequestParam int page, @RequestParam int size,@RequestParam String accessKey) {
         PageRequest request = PageRequest.of(page, size);
         Page<FishQuestion> questions = questionRepository.findByUser_Key(accessKey,request);
-        return JsonResult.builder().data(questions).build();
+        return JsonResult.Companion.data(questions);
     }
 
     @ApiOperation(value = "获取我的回答")
@@ -163,14 +163,14 @@ public class FishController {
         orderArrayList.add(new Sort.Order(Sort.Direction.ASC, "createTime"));
         Sort orders = Sort.by(orderArrayList);
         List<FishQuestionAnswer> answers = answerRepository.findByUser_Key(accessKey,orders);
-        return JsonResult.builder().data(answers).build();
+        return JsonResult.Companion.data(answers);
     }
 
     @ApiOperation(value = "获取问题")
     @RequestMapping(method = RequestMethod.GET, path = "/getQuestion")
     public JsonResult<FishQuestion> getQuestion(@RequestParam Long id) {
         FishQuestion question = questionRepository.findById(id).orElse(null);
-        return JsonResult.builder().data(question).build();
+        return JsonResult.Companion.data(question);
     }
 
     @ApiOperation(value = "获取问题回答")
@@ -181,7 +181,7 @@ public class FishController {
         orderArrayList.add(new Sort.Order(Sort.Direction.ASC, "createTime"));
         Sort orders = Sort.by(orderArrayList);
         List<FishQuestionAnswer> answers = answerRepository.findAllByQuestion_Id(id, orders);
-        return JsonResult.builder().data(answers).build();
+        return JsonResult.Companion.data(answers);
     }
 
     @ApiOperation(value = "问题回答")
@@ -189,16 +189,16 @@ public class FishController {
     public JsonResult<FishQuestionAnswer> postAnswer(@RequestParam String accessKey, @RequestParam Long id, @RequestParam String content) {
         FishUser user = userRepository.findByKey(accessKey);
         if (user == null) {
-            return JsonResult.builder().error("用户session异常，请重新登录").build();
+            return JsonResult.Companion.error("用户session异常，请重新登录");
         }
         FishQuestion question = questionRepository.findById(id).orElse(null);
         if (question == null) {
-            return JsonResult.builder().error("问题不存在").build();
+            return JsonResult.Companion.error("问题不存在");
         }
         question.setUpdateTime(new Date());
         questionRepository.save(question);
         FishQuestionAnswer answer = new FishQuestionAnswer(content, question, user);
-        return JsonResult.builder().data(answerRepository.save(answer)).build();
+        return JsonResult.Companion.data(answerRepository.save(answer));
     }
 
     @ApiOperation(value = "回答顶踩")
@@ -206,14 +206,14 @@ public class FishController {
     public JsonResult<FishQuestionAnswer> answerLikeOrDislike(@RequestParam Long id, @RequestParam int like) {
         FishQuestionAnswer answer = answerRepository.findById(id).orElse(null);
         if (answer == null) {
-            return JsonResult.builder().error("问题不存在").build();
+            return JsonResult.Companion.error("问题不存在");
         }
         if (like > 0) {
             answer.up();
         } else {
             answer.down();
         }
-        return JsonResult.builder().data(answerRepository.save(answer)).build();
+        return JsonResult.Companion.data(answerRepository.save(answer));
     }
 
     @ApiOperation(value = "置顶问题")
@@ -221,14 +221,14 @@ public class FishController {
     public JsonResult<FishQuestion> questionUp(@RequestParam Long id) {
         FishQuestion question = questionRepository.findById(id).orElse(null);
         if (question == null) {
-            return JsonResult.builder().error("问题不存在").build();
+            return JsonResult.Companion.error("问题不存在");
         }
         Date now = new Date();
         if (now.getTime() - question.getUpdateTime().getTime() < 12 * 3600 * 1000) {
-            return JsonResult.builder().error("12小时内只能置顶1次").build();
+            return JsonResult.Companion.error("12小时内只能置顶1次");
         }
         question.setUpdateTime(now);
-        return JsonResult.builder().data(questionRepository.save(question)).build();
+        return JsonResult.Companion.data(questionRepository.save(question));
     }
 
     @ApiOperation(value = "获取微信Session")
@@ -245,9 +245,9 @@ public class FishController {
             user.setKey(accessKey); //一旦登录就刷新key
             System.out.println(user.toString());
             userRepository.save(user);
-            return JsonResult.builder().data(accessKey).build();
+            return JsonResult.Companion.data(accessKey);
         } else {
-            return JsonResult.builder().error("未获取到session").build();
+            return JsonResult.Companion.error("未获取到session");
         }
     }
 
@@ -272,7 +272,7 @@ public class FishController {
             user.setProvince(province);
             user.setUpdateTime(new Date());
         }
-        return JsonResult.builder().data(userRepository.save(user)).build();
+        return JsonResult.Companion.data(userRepository.save(user));
     }
 
 }
