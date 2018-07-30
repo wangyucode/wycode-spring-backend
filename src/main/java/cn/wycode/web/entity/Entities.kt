@@ -39,6 +39,20 @@ data class FishHandBook(var handBookName: String = "", var handBookDetail: Strin
     var collectCount: Int = 0
 }
 
+//图鉴收藏表
+@Entity
+data class FishCollection(@ManyToOne(fetch = FetchType.LAZY)
+                          var handBook: FishHandBook = FishHandBook(),
+                          @ManyToOne
+                          @JsonIgnore
+                          var user: FishUser = FishUser()) {
+    @Id
+    @GeneratedValue(generator = "seq_fish_collection")
+    @SequenceGenerator(name = "seq_fish_collection", sequenceName = "SEQ_FISH_COLLECTION", allocationSize = 1, initialValue = 1)
+    val id: Long? = null
+    var createTime: Date = Date()
+}
+
 @Entity
 data class FishUser(@JsonIgnore var openId: String = "") {
     @Id

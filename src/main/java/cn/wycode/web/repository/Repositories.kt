@@ -53,3 +53,8 @@ interface WXClipboardRepository : CrudRepository<WXClipboard, String> {
     fun findByKey(key: String): WXClipboard?
     fun findByOpenid(openid: String): WXClipboard?
 }
+
+@Repository
+interface FishCollectionRepository:CrudRepository<FishCollection,Long>{
+    fun findAllByUser_KeyOrderByCreateTimeDesc(accessKey: String):List<FishCollection>
+}

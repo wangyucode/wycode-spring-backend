@@ -40,9 +40,10 @@ public class FishController {
     private final FishUserRepository userRepository;
     private final FishAnswerRepository answerRepository;
     private final FishHandBookRepository fishHandBookRepository;
+    private final FishCollectionRepository collectionRepository;
 
     @Autowired
-    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository) {
+    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository, FishCollectionRepository collectionRepository) {
         this.baikeRepository = baikeRepository;
         this.suggestRepository = suggestRepository;
         this.questionRepository = questionRepository;
@@ -51,6 +52,7 @@ public class FishController {
         this.userRepository = userRepository;
         this.answerRepository = answerRepository;
         this.fishHandBookRepository = fishHandBookRepository;
+        this.collectionRepository = collectionRepository;
     }
 
     @ApiOperation(value = "根据类型查询百科，按阅读量倒序排序")
@@ -71,22 +73,61 @@ public class FishController {
     @RequestMapping(method = RequestMethod.POST, path = "/addFishHandBook")
     public JsonResult<FishHandBook> getFishHandBook(@RequestParam String handBookName, @RequestParam String handBookDetail,
                                                     @RequestParam String handBookImageUrl, @RequestParam String type) {
-        FishHandBook fishHandBook = new FishHandBook(handBookName,handBookDetail,handBookImageUrl,new Date(),type);
+        FishHandBook fishHandBook = new FishHandBook(handBookName, handBookDetail, handBookImageUrl, new Date(), type);
         return JsonResult.Companion.data(fishHandBookRepository.save(fishHandBook));
     }
 
-    @ApiOperation(value = "图鉴收藏量")
-    @RequestMapping(method = RequestMethod.GET, path = "/addcollectCount")
-    public JsonResult<FishHandBook> addcollectCount (@RequestParam long id) {
+    @ApiOperation(value = "图鉴收藏")
+    @RequestMapping(method = RequestMethod.POST, path = "/addCollection")
+    public JsonResult<FishCollection> addCollection(@RequestParam long id, @RequestParam String accessKey) {
         FishHandBook fishHandBook = fishHandBookRepository.findById(id).orElse(null);
-        if(fishHandBook != null){
-            fishHandBook.setCollectCount(fishHandBook.getCollectCount() + 1);
-            fishHandBook= fishHandBookRepository.save(fishHandBook);
+        FishUser user = userRepository.findByKey(accessKey);
+        if (fishHandBook == null) {
+            return JsonResult.Companion.error("图鉴不存在");
         }
-        return JsonResult.Companion.data(fishHandBook);
+
+        if (user == null) {
+            return JsonResult.Companion.error("已在其它地方登录");
+        }
+        fishHandBook.setCollectCount(fishHandBook.getCollectCount() + 1);
+        fishHandBook = fishHandBookRepository.save(fishHandBook);
+
+        FishCollection collection = new FishCollection(fishHandBook, user);
+        collectionRepository.save(collection);
+        return JsonResult.Companion.data(collection);
     }
 
-    @ApiOperation(value = "增加阅读量")
+    @ApiOperation(value = "图鉴收藏删除")
+    @RequestMapping(method = RequestMethod.POST, path = "/deleteCollection")
+    public JsonResult<FishCollection> deleteCollection(@RequestParam long id, @RequestParam String accessKey) {
+        FishCollection collection = collectionRepository.findById(id).orElse(null);
+        FishUser user = userRepository.findByKey(accessKey);
+        if (collection == null) {
+            return JsonResult.Companion.error("收藏不存在");
+        }
+
+        if (user == null) {
+            return JsonResult.Companion.error("已在其它地方登录");
+        }
+
+        FishHandBook handBook = collection.getHandBook();
+        handBook.setCollectCount(handBook.getCollectCount() - 1);
+        fishHandBookRepository.save(handBook);
+
+        collectionRepository.deleteById(id);
+        return JsonResult.Companion.data(collection);
+    }
+
+    @ApiOperation(value = "获取我的收藏列表")
+    @RequestMapping(method = RequestMethod.GET, path = "/getMyCollection")
+    public JsonResult<List<FishCollection>> getMyQuestions(@RequestParam String accessKey) {
+        List<FishCollection> collections = collectionRepository.findAllByUser_KeyOrderByCreateTimeDesc(accessKey);
+        return JsonResult.Companion.data(collections);
+    }
+
+
+
+    @ApiOperation(value = "增加百科阅读量")
     @RequestMapping(method = RequestMethod.GET, path = "/addReadCount")
     public JsonResult<FishBaike> addReadCount(@RequestParam long id) {
         FishBaike baike = baikeRepository.findById(id).orElse(null);
@@ -127,7 +168,7 @@ public class FishController {
 
         if (imageList.size() > 0) {
             String questionFolder = "question/" + question.getId().toString();
-            for (String image: imageList) {
+            for (String image : imageList) {
                 try {
                     storageService.moveTempFileToFolder(image, questionFolder);
                 } catch (IOException e) {
@@ -149,9 +190,9 @@ public class FishController {
 
     @ApiOperation(value = "获取我的问题列表")
     @RequestMapping(method = RequestMethod.GET, path = "/getMyQuestionsPage")
-    public JsonResult<Page<FishQuestion>> getMyQuestions(@RequestParam int page, @RequestParam int size,@RequestParam String accessKey) {
+    public JsonResult<Page<FishQuestion>> getMyQuestions(@RequestParam int page, @RequestParam int size, @RequestParam String accessKey) {
         PageRequest request = PageRequest.of(page, size);
-        Page<FishQuestion> questions = questionRepository.findByUser_Key(accessKey,request);
+        Page<FishQuestion> questions = questionRepository.findByUser_Key(accessKey, request);
         return JsonResult.Companion.data(questions);
     }
 
@@ -162,7 +203,7 @@ public class FishController {
         orderArrayList.add(new Sort.Order(Sort.Direction.DESC, "value"));
         orderArrayList.add(new Sort.Order(Sort.Direction.ASC, "createTime"));
         Sort orders = Sort.by(orderArrayList);
-        List<FishQuestionAnswer> answers = answerRepository.findByUser_Key(accessKey,orders);
+        List<FishQuestionAnswer> answers = answerRepository.findByUser_Key(accessKey, orders);
         return JsonResult.Companion.data(answers);
     }
 
