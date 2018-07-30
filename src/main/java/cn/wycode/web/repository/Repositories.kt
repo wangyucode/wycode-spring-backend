@@ -20,7 +20,7 @@ interface ClipboardSuggestRepository : CrudRepository<ClipboardSuggest, Long>
 @Repository
 interface FishAnswerRepository : PagingAndSortingRepository<FishQuestionAnswer, Long> {
     fun findAllByQuestion_Id(questionId: Long, orders: Sort): List<FishQuestionAnswer>
-    fun findByUser_Key(accessKey: String,orders: Sort):List<FishQuestionAnswer>
+    fun findByUser_Key(accessKey: String, orders: Sort): List<FishQuestionAnswer>
 }
 
 @Repository
@@ -29,14 +29,14 @@ interface FishBaikeRepository : CrudRepository<FishBaike, Long> {
 }
 
 @Repository
-interface  FishHandBookRepository: CrudRepository<FishHandBook, Long> {
+interface FishHandBookRepository : CrudRepository<FishHandBook, Long> {
     fun findByTypeOrderByCollectCountDesc(type: String): List<FishHandBook>
 }
 
 @Repository
 interface FishQuestionRepository : PagingAndSortingRepository<FishQuestion, Long> {
     fun findByOrderByUpdateTimeDesc(page: Pageable): Page<FishQuestion>
-    fun findByUser_Key(accessKey: String,page: Pageable):Page<FishQuestion>
+    fun findByUser_Key(accessKey: String, page: Pageable): Page<FishQuestion>
 }
 
 @Repository
@@ -55,6 +55,7 @@ interface WXClipboardRepository : CrudRepository<WXClipboard, String> {
 }
 
 @Repository
-interface FishCollectionRepository:CrudRepository<FishCollection,Long>{
-    fun findAllByUser_KeyOrderByCreateTimeDesc(accessKey: String):List<FishCollection>
+interface FishCollectionRepository : CrudRepository<FishCollection, Long> {
+    fun findAllByUser_KeyOrderByCreateTimeDesc(accessKey: String): List<FishCollection>
+    fun findByUser_KeyAndHandBook_Id(accessKey: String, id: Long): FishCollection?
 }

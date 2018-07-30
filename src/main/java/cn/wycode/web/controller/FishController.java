@@ -125,6 +125,17 @@ public class FishController {
         return JsonResult.Companion.data(collections);
     }
 
+    @ApiOperation(value = "是否已收藏图鉴")
+    @RequestMapping(method = RequestMethod.GET, path = "/isCollected")
+    public JsonResult<Long> isCollected(@RequestParam String accessKey, @RequestParam Long id) {
+        FishCollection collection = collectionRepository.findByUser_KeyAndHandBook_Id(accessKey, id);
+        if (collection == null) {
+            return JsonResult.Companion.data(-1L);
+        } else {
+            return JsonResult.Companion.data(collection.getId());
+        }
+
+    }
 
 
     @ApiOperation(value = "增加百科阅读量")
@@ -166,7 +177,7 @@ public class FishController {
         FishQuestion question = new FishQuestion(title, content, user, imageList);
         question = questionRepository.save(question);
 
-        if (imageList.size() > 0) {
+        if (imageList != null && imageList.size() > 0) {
             String questionFolder = "question/" + question.getId().toString();
             for (String image : imageList) {
                 try {
