@@ -112,11 +112,3 @@ data class WXClipboard(@Id val id: String = "", @JsonIgnore var openid: String =
     var lastUpdate: Date = createDate
 }
 
-@Entity
-data class Dota2Hero(
-        @Id
-        val name: String = "",
-        @Column(length = 1023)
-        val imageUrl: String = "",
-        val type: String = ""
-)
