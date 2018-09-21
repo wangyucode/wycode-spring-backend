@@ -8,12 +8,6 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
-@Deprecated("已废弃，9月30日删除，用WXClipboard替代")
-@Repository
-interface ClipboardRepository : CrudRepository<Clipboard, Long> {
-    fun findTopByOrderByIdDesc(): Clipboard?
-}
-
 @Repository
 interface ClipboardSuggestRepository : CrudRepository<ClipboardSuggest, Long>
 

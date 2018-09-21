@@ -1,16 +1,9 @@
 package cn.wycode.web.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.sun.javafx.beans.IDProperty
 import java.util.*
 import javax.persistence.*
-
-
-@Entity
-@Deprecated("老版剪切板，9月1日删除，WXClipboard")
-data class Clipboard(var createDate: Date = Date(), var lastUpdate: Date = Date(), var content: String = "") {
-    @Id
-    var id: Long? = null
-}
 
 @Entity
 data class ClipboardSuggest(var createDate: Date = Date(), var content: String = "", var contact: String? = "") {
@@ -31,7 +24,7 @@ data class FishBaike(var type: String = "", var title: String = "", var detail: 
 
 //图鉴表
 @Entity
-data class FishHandBook(var handBookName: String = "", var handBookDetail: String = "", var handBookImageUrl: String = "", var createDate: Date = Date(), var type: String = "") {
+data class FishHandBook(var handBookName: String = "", var handBookDetail: String = "", @Column(length = 1023) var handBookImageUrl: String = "", var createDate: Date = Date(), var type: String = "") {
     @Id
     @GeneratedValue(generator = "seq_fish_hand_book")
     @SequenceGenerator(name = "seq_fish_hand_book", sequenceName = "SEQ_FISH_HAND_BOOK", allocationSize = 1, initialValue = 1)
@@ -118,3 +111,12 @@ data class WXClipboard(@Id val id: String = "", @JsonIgnore var openid: String =
     var createDate: Date = Date()
     var lastUpdate: Date = createDate
 }
+
+@Entity
+data class Dota2Hero(
+        @Id
+        val name: String = "",
+        @Column(length = 1023)
+        val imageUrl: String = "",
+        val type: String = ""
+)

@@ -1,7 +1,9 @@
 package cn.wycode.web.controller;
 
-import cn.wycode.web.entity.*;
-import cn.wycode.web.repository.ClipboardRepository;
+import cn.wycode.web.entity.ClipboardSuggest;
+import cn.wycode.web.entity.JsonResult;
+import cn.wycode.web.entity.WXClipboard;
+import cn.wycode.web.entity.WXSession;
 import cn.wycode.web.repository.ClipboardSuggestRepository;
 import cn.wycode.web.repository.WXClipboardRepository;
 import cn.wycode.web.service.WXSessionService;
@@ -32,26 +34,16 @@ public class ClipboardController {
             't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5',
             '6', '7', '8', '9'};
 
-    private ClipboardRepository repository;
     private final WXClipboardRepository wxClipboardRepository;
     private ClipboardSuggestRepository suggestRepository;
     private final WXSessionService sessionService;
     private final Random random = new Random();
 
     @Autowired
-    public ClipboardController(ClipboardRepository repository, WXClipboardRepository wxClipboardRepository, ClipboardSuggestRepository suggestRepository, WXSessionService sessionService) {
-        this.repository = repository;
+    public ClipboardController(WXClipboardRepository wxClipboardRepository, ClipboardSuggestRepository suggestRepository, WXSessionService sessionService) {
         this.wxClipboardRepository = wxClipboardRepository;
         this.suggestRepository = suggestRepository;
         this.sessionService = sessionService;
-    }
-
-    @Deprecated
-    @ApiOperation(value = "查询剪切板")
-    @RequestMapping(method = RequestMethod.GET, path = "/query")
-    public JsonResult<Clipboard> query(@RequestParam long id) {
-        Clipboard p = repository.findById(id).orElse(null);
-        return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "通过WXKEY查询剪切板")

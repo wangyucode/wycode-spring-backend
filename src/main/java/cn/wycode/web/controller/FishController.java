@@ -287,18 +287,22 @@ public class FishController {
     @RequestMapping(path = "/wx/getSession", method = RequestMethod.GET)
     public JsonResult<String> getSession(@RequestParam String jsCode) {
         WXSession session = sessionService.getWXSession(jsCode);
-        if (session != null) {
-            System.out.println(session.toString());
+        if (session != null &&
+                !StringUtils.isEmpty(session.getSession_key()) &&
+                !StringUtils.isEmpty(session.getOpenid())
+        ) {
+            log.info(session.toString());
             String accessKey = EncryptionUtil.getHash(session.getSession_key(), EncryptionUtil.MD5);
             FishUser user = userRepository.findByOpenId(session.getOpenid());
             if (user == null) {
                 user = new FishUser(session.getOpenid());
             }
             user.setKey(accessKey); //一旦登录就刷新key
-            System.out.println(user.toString());
+            log.info(user.toString());
             userRepository.save(user);
             return JsonResult.Companion.data(accessKey);
         } else {
+            log.error("/wx/getSession-->" + jsCode + "-->" + (session == null ? "null" : session.toString()));
             return JsonResult.Companion.error("未获取到session");
         }
     }

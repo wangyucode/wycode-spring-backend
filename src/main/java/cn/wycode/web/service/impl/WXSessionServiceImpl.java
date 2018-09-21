@@ -26,6 +26,7 @@ public class WXSessionServiceImpl implements WXSessionService {
     @Autowired
     public WXSessionServiceImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
+        setResponseType();
     }
 
     @Override
@@ -35,7 +36,6 @@ public class WXSessionServiceImpl implements WXSessionService {
                 "&secret=" + secret +
                 "&js_code=" + jsCode +
                 "&grant_type=" + grantType;
-        getResponse();
         return restTemplate.getForObject(url, WXSession.class);
     }
 
@@ -46,11 +46,10 @@ public class WXSessionServiceImpl implements WXSessionService {
                 "&secret=58c20f669effe862b700dc6510bf092c"+
                 "&js_code=" + jsCode +
                 "&grant_type=" + grantType;
-        getResponse();
         return restTemplate.getForObject(url, WXSession.class);
     }
 
-    private void getResponse() {
+    private void setResponseType() {
         restTemplate.getInterceptors().add((request, body, execution) -> {
             ClientHttpResponse response = execution.execute(request, body);
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
