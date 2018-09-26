@@ -9,9 +9,6 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ClipboardSuggestRepository : CrudRepository<ClipboardSuggest, Long>
-
-@Repository
 interface FishAnswerRepository : PagingAndSortingRepository<FishQuestionAnswer, Long> {
     fun findAllByQuestion_Id(questionId: Long, orders: Sort): List<FishQuestionAnswer>
     fun findByUser_Key(accessKey: String, orders: Sort): List<FishQuestionAnswer>
@@ -40,12 +37,6 @@ interface FishSuggestRepository : CrudRepository<FishSuggest, Long>
 interface FishUserRepository : CrudRepository<FishUser, Long> {
     fun findByOpenId(openId: String): FishUser?
     fun findByKey(accessKey: String): FishUser?
-}
-
-@Repository
-interface WXClipboardRepository : CrudRepository<WXClipboard, String> {
-    fun findByKey(key: String): WXClipboard?
-    fun findByOpenid(openid: String): WXClipboard?
 }
 
 @Repository
