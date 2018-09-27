@@ -18,13 +18,6 @@ public class WebApplication implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
 
-//    private final DotaNewsCrawler dotaNewsCrawler;
-//
-//    @Autowired
-//    public WebApplication(DotaNewsCrawler dotaNewsCrawler) {
-//        this.dotaNewsCrawler = dotaNewsCrawler;
-//    }
-
     public static void main(String[] args) {
         startH2Server();
         SpringApplication.run(WebApplication.class, args);
@@ -46,6 +39,5 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-//        dotaNewsCrawler.start();
     }
 }

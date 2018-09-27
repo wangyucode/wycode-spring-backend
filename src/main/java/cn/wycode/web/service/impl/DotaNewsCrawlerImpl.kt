@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 import us.codecraft.webmagic.*
 import us.codecraft.webmagic.pipeline.Pipeline
 import us.codecraft.webmagic.processor.PageProcessor
-import java.util.*
 
 @Service
 class DotaNewsCrawlerImpl(val newsRepository: NewsRepository) : DotaNewsCrawler {

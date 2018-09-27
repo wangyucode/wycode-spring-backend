@@ -4,7 +4,6 @@ import java.util.*
 import javax.persistence.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 @Entity
 data class Dota2Hero(
@@ -61,7 +60,7 @@ data class HeroAbility(
         val coolDown: String = "",
         val tips: String = "",
         @ElementCollection
-        val attributes: Map<String,String> = HashMap()
+        val attributes: Map<String, String> = HashMap()
 )
 
 

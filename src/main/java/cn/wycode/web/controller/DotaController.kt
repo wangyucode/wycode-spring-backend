@@ -9,7 +9,6 @@ import cn.wycode.web.repository.HeroRepository
 import cn.wycode.web.repository.NewsRepository
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort

@@ -1,7 +1,6 @@
 package cn.wycode.web.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.sun.javafx.beans.IDProperty
 import java.util.*
 import javax.persistence.*
 
