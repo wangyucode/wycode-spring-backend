@@ -65,6 +65,33 @@ data class HeroAbility(
 
 
 @Entity
+data class DotaItem(
+        @Id
+        val key: String = "",
+        val type: String? = null,
+        val cname: String? = null,
+        var name: String = "",
+        val lore: String? = null,
+        var img: String = "",
+        val notes: String? = null,
+        @ElementCollection
+        val desc: Map<String, String>? = null,
+        val cost: Int? = null,
+        val mc: String? = null,
+        val cd: Int? = null,
+        @ElementCollection
+        val components: List<String>? = null,
+        @ElementCollection
+        val attrs: Map<String, String>? = null
+) {
+    constructor(key: String, name: String, img: String) : this(key = key) {
+        this.name = name
+        this.img = img
+    }
+}
+
+
+@Entity
 data class DotaNews(
         @Column(length = 1023)
         var content: String? = "",

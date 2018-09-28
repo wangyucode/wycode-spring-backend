@@ -1,9 +1,7 @@
 package cn.wycode.web.controller
 
-import cn.wycode.web.entity.Dota2Hero
-import cn.wycode.web.entity.DotaNews
-import cn.wycode.web.entity.HeroDetail
-import cn.wycode.web.entity.JsonResult
+import cn.wycode.web.entity.*
+import cn.wycode.web.repository.DotaItemRepository
 import cn.wycode.web.repository.HeroDetailRepository
 import cn.wycode.web.repository.HeroRepository
 import cn.wycode.web.repository.NewsRepository
@@ -22,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 @Api(value = "Dota", description = "Dota2", tags = ["Dota"])
 class DotaController(val heroRepository: HeroRepository,
                      val heroDetailRepository: HeroDetailRepository,
+                     val itemRepository: DotaItemRepository,
                      val newsRepository: NewsRepository) {
 
 
@@ -34,9 +33,23 @@ class DotaController(val heroRepository: HeroRepository,
 
     @ApiOperation(value = "获取英雄详情")
     @RequestMapping(method = [RequestMethod.GET], path = ["/heroDetail"])
-    fun heroes(@RequestParam heroName: String): JsonResult<HeroDetail> {
+    fun heroDetail(@RequestParam heroName: String): JsonResult<HeroDetail> {
         val hero = heroDetailRepository.findById(heroName).orElse(null)
         return JsonResult.data(hero)
+    }
+
+    @ApiOperation(value = "获取所有物品")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/items"])
+    fun items(): JsonResult<List<DotaItem>> {
+        val items = itemRepository.findItemList()
+        return JsonResult.data(items)
+    }
+
+    @ApiOperation(value = "获取物品详情")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/itemDetail"])
+    fun itemDetail(@RequestParam itemKey: String): JsonResult<DotaItem> {
+        val item = itemRepository.findById(itemKey).orElse(null)
+        return JsonResult.data(item)
     }
 
     @ApiOperation(value = "获取资讯")
