@@ -1,5 +1,6 @@
 package cn.wycode.web.task
 
+import cn.wycode.web.service.DotaLeaderBoardCrawler
 import cn.wycode.web.service.DotaNewsCrawler
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
@@ -8,7 +9,8 @@ import java.util.*
 import java.text.SimpleDateFormat
 
 @Component
-class DotaScheduledTasks(val newsCrawler: DotaNewsCrawler){
+class DotaScheduledTasks(val newsCrawler: DotaNewsCrawler,
+                         val leaderBoardCrawler: DotaLeaderBoardCrawler){
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -19,5 +21,11 @@ class DotaScheduledTasks(val newsCrawler: DotaNewsCrawler){
     fun crawlNews(){
         logger.info(dateFormat.format(Date()))
         newsCrawler.start()
+    }
+
+    @Scheduled(cron = "0 0 3 * * ? ")
+    fun crawlLeaderBoard(){
+        logger.info(dateFormat.format(Date()))
+        leaderBoardCrawler.start()
     }
 }
