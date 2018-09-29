@@ -61,5 +61,6 @@ dependencies {
         exclude group: 'redis.clients', module: 'jedis'
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
+    compile('com.baidu.aip:java-sdk:4.6.1')
 }
 

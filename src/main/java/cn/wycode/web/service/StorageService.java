@@ -26,4 +26,5 @@ public interface StorageService {
 
     Stream<Path> loadAll() throws IOException;
 
+    Path loadTemp(String filename);
 }

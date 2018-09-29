@@ -5,10 +5,13 @@ import cn.wycode.web.repository.*;
 import cn.wycode.web.service.StorageService;
 import cn.wycode.web.service.WXSessionService;
 import cn.wycode.web.utils.EncryptionUtil;
+import com.baidu.aip.imageclassify.AipImageClassify;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,10 +23,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.nio.file.Path;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/public/fish")
@@ -41,9 +42,11 @@ public class FishController {
     private final FishAnswerRepository answerRepository;
     private final FishHandBookRepository fishHandBookRepository;
     private final FishCollectionRepository collectionRepository;
+    private final AipImageClassify aipImageClassify;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository, FishCollectionRepository collectionRepository) {
+    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository, FishCollectionRepository collectionRepository, AipImageClassify aipImageClassify, ObjectMapper objectMapper) {
         this.baikeRepository = baikeRepository;
         this.suggestRepository = suggestRepository;
         this.questionRepository = questionRepository;
@@ -53,6 +56,8 @@ public class FishController {
         this.answerRepository = answerRepository;
         this.fishHandBookRepository = fishHandBookRepository;
         this.collectionRepository = collectionRepository;
+        this.aipImageClassify = aipImageClassify;
+        this.objectMapper = objectMapper;
     }
 
     @ApiOperation(value = "根据类型查询百科，按阅读量倒序排序")
@@ -190,6 +195,7 @@ public class FishController {
 
         return JsonResult.Companion.data(question);
     }
+
 
     @ApiOperation(value = "分页获取问题列表")
     @RequestMapping(method = RequestMethod.GET, path = "/getQuestionsPage")
@@ -330,5 +336,46 @@ public class FishController {
         }
         return JsonResult.Companion.data(userRepository.save(user));
     }
+
+    @ApiOperation(value = "识别鱼种")
+    @RequestMapping(method = RequestMethod.GET, path = "/classifyFish")
+    public JsonResult<List<ResultItem>> classifyFish(@RequestParam String accessKey, @RequestParam String image) {
+        FishUser user = userRepository.findByKey(accessKey);
+        if (user == null) {
+            return JsonResult.Companion.error("accessKey错误");
+        }
+        log.info(user.getNickName() + "尝试识别鱼类");
+        Path imagePath = storageService.loadTemp(image);
+        if (!imagePath.toFile().exists()) {
+            return JsonResult.Companion.error("文件未上传成功");
+        }
+        HashMap<String, String> options = new HashMap<>();
+        options.put("top_num", "3");
+        options.put("baike_num", "3");
+        JSONObject resObj = aipImageClassify.animalDetect(imagePath.toString(), options);
+        String res = resObj.toString();
+        log.info("返回结果->" + res);
+        List<ResultItem> resultItems = null;
+        String errorCode = "未知错误";
+        if (res.contains("result")) {
+            try {
+                resultItems = objectMapper.readValue(res, ClassifyResult.class).getResult();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return JsonResult.Companion.error("结果解析失败");
+            }
+        } else if (res.contains("error_code")) {
+            String code = resObj.getString("error_code");
+            log.error("未能识别->" + image + ",code->" + code);
+            errorCode = "未能识别，请联系管理员,错误码：" + code;
+        }
+        if (resultItems != null) {
+            return JsonResult.Companion.data(resultItems);
+        } else {
+            return JsonResult.Companion.error(errorCode);
+        }
+
+    }
+
 
 }
