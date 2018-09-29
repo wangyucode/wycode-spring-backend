@@ -43,14 +43,4 @@ public class FileController {
         return JsonResult.Companion.data(name);
     }
 
-    @ApiOperation(value = "所有文件")
-    @GetMapping("/files")
-    @ResponseBody
-    public JsonResult<List<String>> listUploadedFiles() throws IOException {
-        List<String> names = storageService.loadAll().map(
-                Path::toString)
-                .collect(Collectors.toList());
-        return JsonResult.Companion.data(names);
-    }
-
 }
