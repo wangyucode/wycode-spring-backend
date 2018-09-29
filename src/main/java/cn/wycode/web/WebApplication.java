@@ -1,8 +1,10 @@
 package cn.wycode.web;
 
+import cn.wycode.web.service.DotaLeaderBoardCrawler;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +19,8 @@ public class WebApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
+//    @Autowired
+//    DotaLeaderBoardCrawler leaderBoardCrawler;
 
     public static void main(String[] args) {
         startH2Server();
@@ -39,5 +43,6 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+//        leaderBoardCrawler.start();
     }
 }

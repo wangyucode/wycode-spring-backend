@@ -107,3 +107,7 @@ data class DotaNews(
 
     var recordDate: Date = Date()
 }
+
+data class DotaLeaderBoard(var leaderboard: List<BoardItem> = ArrayList())
+
+data class BoardItem(val rank: Int = 0, val name: String = "", val team_tag: String = "")
