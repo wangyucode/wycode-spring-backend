@@ -68,8 +68,8 @@ data class HeroAbility(
 data class DotaItem(
         @Id
         val key: String = "",
-        val type: String? = null,
-        val cname: String? = null,
+        var type: String = "",
+        var cname: String = "",
         var name: String = "",
         val lore: String? = null,
         var img: String = "",
@@ -84,9 +84,15 @@ data class DotaItem(
         @ElementCollection
         val attrs: Map<String, String>? = null
 ) {
-    constructor(key: String, name: String, img: String) : this(key = key) {
+    constructor(key: String,
+                name: String,
+                img: String,
+                cname: String,
+                type: String) : this(key = key) {
         this.name = name
         this.img = img
+        this.cname = cname
+        this.type = type
     }
 }
 
