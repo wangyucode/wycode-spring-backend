@@ -29,7 +29,6 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
     override fun start() {
         val url = "http://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china"
         val response = restTemplate.getForObject(url, String::class.java)
-        logger.info(response)
         if (!StringUtils.isEmpty(response) && response!!.contains("leaderboard")) {
             val leaderBoard = objectMapper.readValue<DotaLeaderBoard>(response, DotaLeaderBoard::class.java)
             leaderBoard.leaderboard = leaderBoard.leaderboard.subList(0,1000)

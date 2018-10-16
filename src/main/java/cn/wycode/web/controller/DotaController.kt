@@ -1,10 +1,7 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
-import cn.wycode.web.repository.DotaItemRepository
-import cn.wycode.web.repository.HeroDetailRepository
-import cn.wycode.web.repository.HeroRepository
-import cn.wycode.web.repository.NewsRepository
+import cn.wycode.web.repository.*
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.data.domain.Page
@@ -20,9 +17,16 @@ import org.springframework.web.bind.annotation.RestController
 @Api(value = "Dota", description = "Dota2", tags = ["Dota"])
 class DotaController(val heroRepository: HeroRepository,
                      val heroDetailRepository: HeroDetailRepository,
+                     val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
                      val newsRepository: NewsRepository) {
 
+    @ApiOperation(value = "获取数据库版本")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/version"])
+    fun version(): JsonResult<DotaVersion> {
+        val version = versionRepository.findById(1).orElse(null)
+        return JsonResult.data(version)
+    }
 
     @ApiOperation(value = "获取所有英雄")
     @RequestMapping(method = [RequestMethod.GET], path = ["/heroes"])

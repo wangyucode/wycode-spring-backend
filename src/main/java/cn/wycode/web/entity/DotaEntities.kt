@@ -6,6 +6,16 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 @Entity
+data class DotaVersion(
+        @Id
+        val id: Int = 1,
+        @Column(length = 10)
+        val version: String = "7.19d",
+        @Temporal(TemporalType.DATE)
+        val date: Date = Date()
+)
+
+@Entity
 data class Dota2Hero(
         @Id
         val name: String = "",

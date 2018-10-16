@@ -77,6 +77,11 @@ public class StorageServiceImpl implements StorageService {
         return tempPath.resolve(filename);
     }
 
+    @Override
+    public Path getRootPath() {
+        return rootPath;
+    }
+
     public class StorageException extends RuntimeException {
         private static final long serialVersionUID = 2430191988074222554L;
 

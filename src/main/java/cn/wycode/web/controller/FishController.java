@@ -2,6 +2,7 @@ package cn.wycode.web.controller;
 
 import cn.wycode.web.entity.*;
 import cn.wycode.web.repository.*;
+import cn.wycode.web.service.FishClassifyProcessService;
 import cn.wycode.web.service.StorageService;
 import cn.wycode.web.service.WXSessionService;
 import cn.wycode.web.utils.EncryptionUtil;
@@ -44,9 +45,10 @@ public class FishController {
     private final FishCollectionRepository collectionRepository;
     private final AipImageClassify aipImageClassify;
     private final ObjectMapper objectMapper;
+    private final FishClassifyProcessService fishClassifyProcessService;
 
     @Autowired
-    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository, FishCollectionRepository collectionRepository, AipImageClassify aipImageClassify, ObjectMapper objectMapper) {
+    public FishController(FishHandBookRepository fishHandBookRepository, FishBaikeRepository baikeRepository, FishSuggestRepository suggestRepository, FishQuestionRepository questionRepository, WXSessionService sessionService, StorageService storageService, FishUserRepository userRepository, FishAnswerRepository answerRepository, FishCollectionRepository collectionRepository, AipImageClassify aipImageClassify, ObjectMapper objectMapper, FishClassifyProcessService fishClassifyProcessService) {
         this.baikeRepository = baikeRepository;
         this.suggestRepository = suggestRepository;
         this.questionRepository = questionRepository;
@@ -58,6 +60,7 @@ public class FishController {
         this.collectionRepository = collectionRepository;
         this.aipImageClassify = aipImageClassify;
         this.objectMapper = objectMapper;
+        this.fishClassifyProcessService = fishClassifyProcessService;
     }
 
     @ApiOperation(value = "根据类型查询百科，按阅读量倒序排序")
@@ -356,22 +359,27 @@ public class FishController {
         String res = resObj.toString();
         log.info("返回结果->" + res);
         List<ResultItem> resultItems = null;
-        String errorCode = "未知错误";
+        String errorCode = "未能识别，请联系管理员,错误码：json";
         if (res.contains("result")) {
             try {
                 resultItems = objectMapper.readValue(res, ClassifyResult.class).getResult();
             } catch (IOException e) {
                 e.printStackTrace();
-                return JsonResult.Companion.error("结果解析失败");
             }
         } else if (res.contains("error_code")) {
-            String code = resObj.getString("error_code");
+            int code = resObj.optInt("error_code");
             log.error("未能识别->" + image + ",code->" + code);
             errorCode = "未能识别，请联系管理员,错误码：" + code;
         }
         if (resultItems != null) {
+            if(resultItems.size()>0) {
+                fishClassifyProcessService.moveAndSaveResult(imagePath,user,resultItems.get(0),res);
+            }else{
+                fishClassifyProcessService.moveAndSaveResult(imagePath,user,null,res);
+            }
             return JsonResult.Companion.data(resultItems);
         } else {
+            fishClassifyProcessService.moveAndSaveResult(imagePath,user,null,res);
             return JsonResult.Companion.error(errorCode);
         }
 
