@@ -7,5 +7,6 @@ public interface WXSessionService {
 
     WXSession getWXSession(String jsCode);
     WXSession getWXSessionForClipboard(String jsCode);
+    WXSession getWXSessionForAlbum(String jsCode);
 
 }

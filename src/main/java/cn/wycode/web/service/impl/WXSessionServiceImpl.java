@@ -49,6 +49,16 @@ public class WXSessionServiceImpl implements WXSessionService {
         return restTemplate.getForObject(url, WXSession.class);
     }
 
+    @Override
+    public WXSession getWXSessionForAlbum(String jsCode) {
+        String url = sessionUrl +
+                "?appid=wx012769ddf1d7fabd" +
+                "&secret=cedb32f8321a19605216f682253d2dc1"+
+                "&js_code=" + jsCode +
+                "&grant_type=" + grantType;
+        return restTemplate.getForObject(url, WXSession.class);
+    }
+
     private void setResponseType() {
         restTemplate.getInterceptors().add((request, body, execution) -> {
             ClientHttpResponse response = execution.execute(request, body);
