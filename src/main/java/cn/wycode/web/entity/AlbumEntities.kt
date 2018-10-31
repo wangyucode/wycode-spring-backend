@@ -37,3 +37,17 @@ data class Album(@Id
     var updateTime: Date = createTime
 }
 
+@Entity
+data class AlbumPhoto(@Id
+                      @GeneratedValue(generator = "seq_album_photo")
+                      @SequenceGenerator(name = "seq_album_photo", sequenceName = "SEQ_AlBUM_PHOTO", allocationSize = 1, initialValue = 1)
+                      val id: Long? = null,
+                      val desc: String = "",
+                      val createTime: Date = Date(),
+                      @OneToOne
+                      val album: Album = Album(),
+                      @OneToOne
+                      val uploadUser: AlbumUser = AlbumUser(""),
+                      val likeCount: Int = 0
+)
+
