@@ -31,6 +31,7 @@ data class Album(@Id
                  val id: Long? = null,
                  val name: String = "",
                  val createTime: Date = Date(),
+                 val status:Int = 0,
                  @OneToOne
                  val owner: AlbumUser = AlbumUser("")
 ) {

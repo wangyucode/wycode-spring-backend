@@ -14,6 +14,7 @@ interface AlbumUserRepository : CrudRepository<AlbumUser, Long> {
 
 @Repository
 interface AlbumRepository : CrudRepository<Album, Long> {
-    fun findAllByOwner_KeyOrderByCreateTimeDesc(accessKey: String): List<Album>
-    fun countByOwner_Key(accessKey: String): Int
+    fun findAllByOwner_KeyAndStatusOrderByCreateTimeDesc(accessKey: String,status: Int): List<Album>
+    fun countByOwner_KeyAndStatus(accessKey: String, status: Int): Int
+    fun findByOwner_KeyAndStatus(accessKey: String, status: Int): Album?
 }

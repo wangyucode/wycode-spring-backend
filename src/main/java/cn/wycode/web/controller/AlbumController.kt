@@ -75,20 +75,24 @@ class AlbumController(val sessionService: WXSessionService,
     @ApiOperation(value = "获取所有相册")
     @RequestMapping(path = ["/getAlbums"], method = [RequestMethod.GET])
     fun getAlbums(@RequestParam accessKey: String): JsonResult<List<Album>> {
-        val albums = albumRepository.findAllByOwner_KeyOrderByCreateTimeDesc(accessKey)
+        val albums = albumRepository.findAllByOwner_KeyAndStatusOrderByCreateTimeDesc(accessKey, 1)
         return JsonResult.data(albums)
     }
 
     @ApiOperation(value = "新建相册")
-    @RequestMapping(path = ["/newAlbum"], method = [RequestMethod.POST])
-    fun newAlbum(@RequestParam accessKey: String,
-                 @RequestParam name: String): JsonResult<Album> {
+    @RequestMapping(path = ["/newAlbum"], method = [RequestMethod.GET])
+    fun newAlbum(@RequestParam accessKey: String): JsonResult<Album> {
         val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
-        val albumCount = albumRepository.countByOwner_Key(accessKey)
+        val albumCount = albumRepository.countByOwner_KeyAndStatus(accessKey, 1)
         if (albumCount >= user.maxAlbum) {
             return JsonResult.error("相册数量达到上限")
         }
-        val album = Album(name = name, owner = user)
+        var album = albumRepository.findByOwner_KeyAndStatus(accessKey, 0)
+        if (album != null) {
+            return JsonResult.data(album)
+        } else {
+            album = Album(name = "相册" + (albumCount + 1), owner = user)
+        }
         return JsonResult.data(albumRepository.save(album))
     }
 
