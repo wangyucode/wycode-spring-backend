@@ -17,12 +17,13 @@ data class AlbumUser(@JsonIgnore var openId: String = "") {
     var province: String? = null //用户所在省份
     var country: String? = null    //用户所在国家
     var language: String? = null    //用户的语言，简体中文为zh_CN
+    @JsonIgnore
     var key: String? = null //第三方（系统内）session
     var createTime: Date = Date()
     var updateTime: Date = createTime
     var maxAlbum: Int = 5
     var currentSize: Long = 0
-    var maxSize: Long = 1 * 1024 * 1024 * 1024 //1G
+    var maxSize: Long = 1L * 1024 * 1024 * 1024 //1G
 }
 
 @Entity
