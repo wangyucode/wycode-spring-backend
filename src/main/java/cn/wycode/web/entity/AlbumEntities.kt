@@ -31,9 +31,10 @@ data class Album(@Id
                  @GeneratedValue(generator = "seq_album")
                  @SequenceGenerator(name = "seq_album", sequenceName = "SEQ_AlBUM", allocationSize = 1, initialValue = 1)
                  val id: Long? = null,
-                 val name: String = "",
+                 var name: String = "",
+                 var cover: String = "",
                  val createTime: Date = Date(),
-                 val status:Int = 0,
+                 var status:Int = 0,
                  @OneToOne
                  val owner: AlbumUser = AlbumUser("")
 ) {

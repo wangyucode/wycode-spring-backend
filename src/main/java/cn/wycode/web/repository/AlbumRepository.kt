@@ -27,4 +27,5 @@ interface AlbumRepository : CrudRepository<Album, Long> {
 @Repository
 interface AlbumPhotoRepository : PagingAndSortingRepository<AlbumPhoto, Long> {
     fun findAllByAlbum_IdOrderByCreateTimeDesc(id: Long, pageable: Pageable): Page<AlbumPhoto>
+    fun findAllByAlbum_IdOrderByCreateTimeAsc(id: Long, pageable: Pageable): Page<AlbumPhoto>
 }

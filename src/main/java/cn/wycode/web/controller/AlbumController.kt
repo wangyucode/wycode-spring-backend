@@ -159,7 +159,7 @@ class AlbumController(val sessionService: WXSessionService,
         return JsonResult.data(photo)
     }
 
-    @ApiOperation(value = "修改相册描述")
+    @ApiOperation(value = "修改相片描述")
     @RequestMapping(path = ["/editAlbumPhoto"], method = [RequestMethod.POST])
     fun deleteAlbumPhoto(@RequestParam accessKey: String,
                          @RequestParam albumId: Long,
@@ -178,6 +178,39 @@ class AlbumController(val sessionService: WXSessionService,
     }
 
 
+    @ApiOperation(value = "修改相册名称")
+    @RequestMapping(path = ["/editAlbum"], method = [RequestMethod.POST])
+    fun editAlbum(@RequestParam accessKey: String,
+                  @RequestParam albumId: Long,
+                  @RequestParam name: String): JsonResult<Album> {
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        if (album.owner.id != user.id) {
+            //不是相册拥有者
+            return JsonResult.error("您没有权限")
+        }
+        album.name = name
+        return JsonResult.data(albumRepository.save(album))
+    }
+
+
+    @ApiOperation(value = "启用相册")
+    @RequestMapping(path = ["/enableAlbum"], method = [RequestMethod.POST])
+    fun enableAlbum(@RequestParam accessKey: String,
+                    @RequestParam albumId: Long): JsonResult<Album> {
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        if (album.owner.id != user.id) {
+            //不是相册拥有者
+            return JsonResult.error("您没有权限")
+        }
+        val firstPhotoPage = albumPhotoRepository.findAllByAlbum_IdOrderByCreateTimeAsc(albumId, PageRequest.of(0, 1))
+        if (firstPhotoPage.hasContent()) {
+            album.cover = firstPhotoPage.content[0].path
+        }
+        album.status = 1
+        return JsonResult.data(albumRepository.save(album))
+    }
 
 
 }
