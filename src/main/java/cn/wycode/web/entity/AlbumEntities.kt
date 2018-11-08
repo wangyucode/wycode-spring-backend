@@ -21,6 +21,7 @@ data class AlbumUser(@JsonIgnore var openId: String = "") {
     var createTime: Date = Date()
     var updateTime: Date = createTime
     var maxAlbum: Int = 5
+    var currentSize: Long = 0
     var maxSize: Long = 1 * 1024 * 1024 * 1024 //1G
 }
 
@@ -43,12 +44,13 @@ data class AlbumPhoto(@Id
                       @GeneratedValue(generator = "seq_album_photo")
                       @SequenceGenerator(name = "seq_album_photo", sequenceName = "SEQ_AlBUM_PHOTO", allocationSize = 1, initialValue = 1)
                       val id: Long? = null,
-                      val desc: String = "",
+                      var desc: String = "",
                       val createTime: Date = Date(),
+                      val path: String = "",
+                      @JsonIgnore
                       @OneToOne
                       val album: Album = Album(),
                       @OneToOne
                       val uploadUser: AlbumUser = AlbumUser(""),
-                      val likeCount: Int = 0
-)
+                      var likeCount: Int = 0)
 

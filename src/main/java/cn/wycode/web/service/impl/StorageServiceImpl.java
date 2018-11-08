@@ -21,9 +21,6 @@ public class StorageServiceImpl implements StorageService {
 
     private Log log = LogFactory.getLog(StorageServiceImpl.class);
 
-//    private static Path rootPath = Paths.get("/apache-tomcat-8.5.14/webapps/upload/");
-//    private static Path tempPath = Paths.get("/apache-tomcat-8.5.14/webapps/upload/temp/");
-
     private static final Path rootPath = Paths.get("/var/www/upload/");
     private static final Path tempPath = Paths.get("/var/www/upload/temp/");
 
