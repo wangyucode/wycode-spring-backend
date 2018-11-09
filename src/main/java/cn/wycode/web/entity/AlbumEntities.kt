@@ -55,3 +55,28 @@ data class AlbumPhoto(@Id
                       val uploadUser: AlbumUser = AlbumUser(""),
                       var likeCount: Int = 0)
 
+
+@Entity
+data class AlbumMember(@Id
+                       @GeneratedValue(generator = "seq_album_member")
+                       @SequenceGenerator(name = "seq_album_member", sequenceName = "SEQ_AlBUM_MEMBER", allocationSize = 1, initialValue = 1)
+                       val id: Long? = null,
+                       val createTime: Date = Date(),
+                       val remark: String = "",
+                       @JsonIgnore
+                       @OneToOne
+                       val album: Album = Album(),
+                       @OneToOne
+                       val user: AlbumUser = AlbumUser(""),
+                       /**
+                        * 二进制权限表示由低位到高位分别是：
+                        * 读，写，删，邀请，
+                        * 默认为读
+                        * 0001 读
+                        * 0011 读写
+                        * 1001 邀请+读
+                        */
+                       var permission: Int = 1) {
+    var updateTime: Date = createTime
+}
+

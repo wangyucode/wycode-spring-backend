@@ -1,6 +1,7 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
+import cn.wycode.web.repository.AlbumMemberRepository
 import cn.wycode.web.repository.AlbumPhotoRepository
 import cn.wycode.web.repository.AlbumRepository
 import cn.wycode.web.repository.AlbumUserRepository
@@ -27,6 +28,7 @@ import java.util.*
 class AlbumController(val sessionService: WXSessionService,
                       val userRepository: AlbumUserRepository,
                       val albumPhotoRepository: AlbumPhotoRepository,
+                      val albumMemberRepository: AlbumMemberRepository,
                       val ossService: OssService,
                       val storageService: StorageService,
                       val albumRepository: AlbumRepository) {
@@ -207,5 +209,25 @@ class AlbumController(val sessionService: WXSessionService,
         return JsonResult.data(album)
     }
 
+
+    @ApiOperation(value = "加入相册成员")
+    @RequestMapping(path = ["/joinAlbum"], method = [RequestMethod.POST])
+    fun joinAlbum(@RequestParam accessKey: String,
+                  @RequestParam albumId: Long): JsonResult<AlbumMember> {
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        if (album.owner.id == user.id) {
+            return JsonResult.error("你是相册主人")
+        }
+        var member = albumMemberRepository.findByUser_KeyAndAlbum_Id(accessKey, albumId)
+        if (member != null) {
+            return JsonResult.error("你已经是相册成员了")
+        }
+        if (albumMemberRepository.countByAlbum_Id(albumId) > 5) {
+            return JsonResult.error("相册成员最多6人")
+        }
+        member = AlbumMember(album = album, user = user)
+        return JsonResult.data(albumMemberRepository.save(member))
+    }
 
 }
