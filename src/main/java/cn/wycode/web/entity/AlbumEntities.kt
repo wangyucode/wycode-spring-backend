@@ -34,7 +34,6 @@ data class Album(@Id
                  var name: String = "",
                  var cover: String = "",
                  val createTime: Date = Date(),
-                 var status:Int = 0,
                  @OneToOne
                  val owner: AlbumUser = AlbumUser("")
 ) {

@@ -81,7 +81,7 @@ class AlbumController(val sessionService: WXSessionService,
     @ApiOperation(value = "获取所有相册")
     @RequestMapping(path = ["/getAlbums"], method = [RequestMethod.GET])
     fun getAlbums(@RequestParam accessKey: String): JsonResult<List<Album>> {
-        val albums = albumRepository.findAllByOwner_KeyAndStatusOrderByCreateTimeDesc(accessKey, 1)
+        val albums = albumRepository.findAllByOwner_KeyOrderByCreateTimeDesc(accessKey)
         return JsonResult.data(albums)
     }
 
@@ -89,16 +89,11 @@ class AlbumController(val sessionService: WXSessionService,
     @RequestMapping(path = ["/newAlbum"], method = [RequestMethod.GET])
     fun newAlbum(@RequestParam accessKey: String): JsonResult<Album> {
         val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
-        val albumCount = albumRepository.countByOwner_KeyAndStatus(accessKey, 1)
+        val albumCount = albumRepository.countByOwner_Key(accessKey)
         if (albumCount >= user.maxAlbum) {
             return JsonResult.error("相册数量达到上限")
         }
-        var album = albumRepository.findByOwner_KeyAndStatus(accessKey, 0)
-        if (album != null) {
-            return JsonResult.data(album)
-        } else {
-            album = Album(name = "相册" + (albumCount + 1), owner = user)
-        }
+        val album = Album(name = "相册" + (albumCount + 1), owner = user)
         return JsonResult.data(albumRepository.save(album))
     }
 
@@ -194,22 +189,22 @@ class AlbumController(val sessionService: WXSessionService,
     }
 
 
+    @Deprecated("2个版本后废弃")
     @ApiOperation(value = "启用相册")
     @RequestMapping(path = ["/enableAlbum"], method = [RequestMethod.POST])
     fun enableAlbum(@RequestParam accessKey: String,
                     @RequestParam albumId: Long): JsonResult<Album> {
-        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
         val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
-        if (album.owner.id != user.id) {
-            //不是相册拥有者
-            return JsonResult.error("您没有权限")
-        }
-        val firstPhotoPage = albumPhotoRepository.findAllByAlbum_IdOrderByCreateTimeAsc(albumId, PageRequest.of(0, 1))
-        if (firstPhotoPage.hasContent()) {
-            album.cover = firstPhotoPage.content[0].path
-        }
-        album.status = 1
-        return JsonResult.data(albumRepository.save(album))
+        return JsonResult.data(album)
+    }
+
+    @ApiOperation(value = "获取相册详情")
+    @RequestMapping(path = ["/getAlbum"], method = [RequestMethod.GET])
+    fun getAlbum(@RequestParam accessKey: String,
+                 @RequestParam albumId: Long): JsonResult<Album> {
+        userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        return JsonResult.data(album)
     }
 
 
