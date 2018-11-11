@@ -80,3 +80,5 @@ data class AlbumMember(@Id
     var updateTime: Date = createTime
 }
 
+data class AlbumCapacity(val size:Long,val sizeMax:Long,val count:Int,val countMax:Int)
+
