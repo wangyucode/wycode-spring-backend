@@ -23,13 +23,14 @@ interface AlbumRepository : CrudRepository<Album, Long> {
     @Query("select A.NAME,A.COVER,A.ID,A.CREATE_TIME,A.OWNER_ID,A.UPDATE_TIME\n" +
             "from ALBUM A\n" +
             "       inner join ALBUM_USER AU on A.OWNER_ID = AU.ID\n" +
-            "where AU.KEY = ?\n" +
+            "where AU.KEY = :key\n" +
             "union\n" +
             "select A1.NAME,A1.COVER,A1.ID,A1.CREATE_TIME,A1.OWNER_ID,A1.UPDATE_TIME\n" +
             "from ALBUM A1\n" +
             "       inner join ALBUM_MEMBER AM on A1.ID = AM.ALBUM_ID\n" +
-            "       inner join ALBUM_USER U on AM.USER_ID = U.ID",nativeQuery = true)
-    fun findAllByOwner_KeyOrderByCreateTimeDesc(accessKey: String): List<Album>
+            "       inner join ALBUM_USER U on AM.USER_ID = U.ID\n"+
+            "where U.KEY = :key",nativeQuery = true)
+    fun findAllByOwner_KeyOrderByCreateTimeDesc(key: String): List<Album>
     fun countByOwner_Key(accessKey: String): Int
 }
 

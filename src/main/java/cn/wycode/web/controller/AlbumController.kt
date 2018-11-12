@@ -117,9 +117,9 @@ class AlbumController(val sessionService: WXSessionService,
             return JsonResult.error("相片不存在")
         }
         if (user.currentSize > user.maxSize) {
-            return JsonResult.error("到达免费存储容量上限，请联系作者提升容量！")
+            return JsonResult.error("到达免费存储容量上限，请联系作者提升容量")
         }
-        val path = ossService.putFile(album.id!!, file)
+        val path = ossService.putFile(album.id!!, file)?:return JsonResult.error("追加失败，请重试")
         user.currentSize += file.length()
         userRepository.save(user)
         val photo = AlbumPhoto(desc = desc, path = path, album = album, uploadUser = user)
@@ -157,8 +157,8 @@ class AlbumController(val sessionService: WXSessionService,
             return JsonResult.error("您没有权限")
         }
         val length = ossService.deleteFile(photo.path)
-        user.currentSize -= length
-        userRepository.save(user)
+        photo.uploadUser.currentSize -= length
+        userRepository.save(photo.uploadUser)
         if (album.cover == photo.path) {
             album.cover = ""
             albumRepository.save(album)
