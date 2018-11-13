@@ -35,7 +35,9 @@ data class Album(@Id
                  var cover: String = "",
                  val createTime: Date = Date(),
                  @OneToOne
-                 val owner: AlbumUser = AlbumUser("")
+                 val owner: AlbumUser = AlbumUser(""),
+                 @Column()
+                 var maxMember: Int = 10
 ) {
     var updateTime: Date = createTime
 }

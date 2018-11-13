@@ -20,12 +20,12 @@ interface AlbumUserRepository : CrudRepository<AlbumUser, Long> {
 
 @Repository
 interface AlbumRepository : CrudRepository<Album, Long> {
-    @Query("select A.NAME,A.COVER,A.ID,A.CREATE_TIME,A.OWNER_ID,A.UPDATE_TIME\n" +
+    @Query("select A.NAME,A.COVER,A.ID,A.CREATE_TIME,A.OWNER_ID,A.UPDATE_TIME,A.MAX_MEMBER\n" +
             "from ALBUM A\n" +
             "       inner join ALBUM_USER AU on A.OWNER_ID = AU.ID\n" +
             "where AU.KEY = :key\n" +
             "union\n" +
-            "select A1.NAME,A1.COVER,A1.ID,A1.CREATE_TIME,A1.OWNER_ID,A1.UPDATE_TIME\n" +
+            "select A1.NAME,A1.COVER,A1.ID,A1.CREATE_TIME,A1.OWNER_ID,A1.UPDATE_TIME,A1.MAX_MEMBER\n" +
             "from ALBUM A1\n" +
             "       inner join ALBUM_MEMBER AM on A1.ID = AM.ALBUM_ID\n" +
             "       inner join ALBUM_USER U on AM.USER_ID = U.ID\n"+
@@ -39,6 +39,7 @@ interface AlbumRepository : CrudRepository<Album, Long> {
 interface AlbumPhotoRepository : PagingAndSortingRepository<AlbumPhoto, Long> {
     fun findAllByAlbum_IdOrderByCreateTimeDesc(id: Long, pageable: Pageable): Page<AlbumPhoto>
     fun findAllByAlbum_IdOrderByCreateTimeAsc(id: Long, pageable: Pageable): Page<AlbumPhoto>
+    fun countByAlbum_Id(albumId: Long): Int
 }
 
 

@@ -119,7 +119,7 @@ class AlbumController(val sessionService: WXSessionService,
         if (user.currentSize > user.maxSize) {
             return JsonResult.error("到达免费存储容量上限，请联系作者提升容量")
         }
-        val path = ossService.putFile(album.id!!, file)?:return JsonResult.error("追加失败，请重试")
+        val path = ossService.putFile(album.id!!, file) ?: return JsonResult.error("追加失败，请重试")
         user.currentSize += file.length()
         userRepository.save(user)
         val photo = AlbumPhoto(desc = desc, path = path, album = album, uploadUser = user)
@@ -239,8 +239,8 @@ class AlbumController(val sessionService: WXSessionService,
         if (member != null) {
             return JsonResult.error("你已经是相册成员了")
         }
-        if (albumMemberRepository.countByAlbum_Id(albumId) > 5) {
-            return JsonResult.error("相册成员最多6人")
+        if (albumMemberRepository.countByAlbum_Id(albumId) > album.maxMember) {
+            return JsonResult.error("相册成员达到上限，请联系管理员")
         }
         member = AlbumMember(album = album, user = user)
         return JsonResult.data(albumMemberRepository.save(member))
@@ -276,9 +276,29 @@ class AlbumController(val sessionService: WXSessionService,
     }
 
 
+    @ApiOperation(value = "删除相册")
+    @RequestMapping(path = ["/deleteAlbum"], method = [RequestMethod.POST])
+    fun deleteAlbum(@RequestParam accessKey: String,
+                    @RequestParam albumId: Long): JsonResult<Album> {
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        if (getPermission(user, album, null).and(16) != 16) {
+            return JsonResult.error("你不是相册主人")
+        }
+        if(albumPhotoRepository.countByAlbum_Id(albumId)>0){
+            return  JsonResult.error("请先删除所有相片")
+        }
+        if(albumMemberRepository.countByAlbum_Id(albumId)>0){
+            return  JsonResult.error("请先踢出所有相册成员")
+        }
+        albumRepository.delete(album)
+        return JsonResult.data(album)
+    }
+
+
     private fun getPermission(user: AlbumUser, album: Album, member: AlbumMember?): Int {
         if (album.owner.id == user.id) {
-            return 15
+            return 31
         }
         if (member == null) {
             return 0
