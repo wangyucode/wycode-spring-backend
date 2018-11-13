@@ -285,14 +285,51 @@ class AlbumController(val sessionService: WXSessionService,
         if (getPermission(user, album, null).and(16) != 16) {
             return JsonResult.error("你不是相册主人")
         }
-        if(albumPhotoRepository.countByAlbum_Id(albumId)>0){
-            return  JsonResult.error("请先删除所有相片")
+        if (albumPhotoRepository.countByAlbum_Id(albumId) > 0) {
+            return JsonResult.error("请先删除所有相片")
         }
-        if(albumMemberRepository.countByAlbum_Id(albumId)>0){
-            return  JsonResult.error("请先踢出所有相册成员")
+        if (albumMemberRepository.countByAlbum_Id(albumId) > 0) {
+            return JsonResult.error("请先踢出所有相册成员")
         }
         albumRepository.delete(album)
         return JsonResult.data(album)
+    }
+
+    @ApiOperation(value = "修改成员权限")
+    @RequestMapping(path = ["/changePermission"], method = [RequestMethod.POST])
+    fun changePermission(@RequestParam accessKey: String,
+                         @RequestParam albumId: Long,
+                         @RequestParam memberId: Long,
+                         @RequestParam permission: Int): JsonResult<Int> {
+        if (permission > 15) {
+            return JsonResult.error("权限不合法")
+        }
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        if (getPermission(user, album, null).and(16) != 16) {
+            return JsonResult.error("你不是相册主人")
+        }
+        val member = albumMemberRepository.findById(memberId).orElse(null) ?: return JsonResult.error("相册成员不存在")
+        member.permission = permission
+        albumMemberRepository.save(member)
+        return JsonResult.data(permission)
+    }
+
+
+    @ApiOperation(value = "删除相册成员")
+    @RequestMapping(path = ["/deleteMember"], method = [RequestMethod.POST])
+    fun deleteMember(@RequestParam accessKey: String,
+                     @RequestParam albumId: Long,
+                     @RequestParam memberId: Long): JsonResult<AlbumMember> {
+        val user = userRepository.findByKey(accessKey) ?: return JsonResult.error("用户不存在")
+        val album = albumRepository.findById(albumId).orElse(null) ?: return JsonResult.error("相册不存在")
+        val member = albumMemberRepository.findById(memberId).orElse(null) ?: return JsonResult.error("相册成员不存在")
+        if ((getPermission(user, album, null).and(16) != 16) //不是相册主人
+                && member.user.id != user.id) { //也不是成员本人
+            return JsonResult.error("你没有权限")
+        }
+        albumMemberRepository.delete(member)
+        return JsonResult.data(member)
     }
 
 
