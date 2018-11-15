@@ -21,7 +21,8 @@ data class Dota2Hero(
         val name: String = "",
         @Column(length = 1023)
         val imageUrl: String = "",
-        val type: String = ""
+        val type: String = "",
+        val icon: String? = ""
 )
 
 @Entity
