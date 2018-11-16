@@ -69,8 +69,8 @@ class SavePipleLine(private val newsRepository: NewsRepository) : Pipeline {
                     logger.info("news saved ->$title")
                 } else {
                     logger.info("news exists->${dotaNews.title}")
-                    //已经存在超过30天就删除这条新闻
-                    if (System.currentTimeMillis() - dotaNews.recordDate.time > 1000L * 3600 * 24 * 30) {
+                    //已经存在超过7天就删除这条新闻
+                    if (System.currentTimeMillis() - dotaNews.recordDate.time > 1000L * 3600 * 24 * 7) {
                         newsRepository.delete(dotaNews)
                         logger.info("news deleted->${dotaNews.title}")
                     }

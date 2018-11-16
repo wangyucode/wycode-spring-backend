@@ -7,7 +7,10 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface HeroRepository : CrudRepository<Dota2Hero, String>
+interface HeroRepository : CrudRepository<Dota2Hero, String> {
+    @Query("select new Dota2Hero(h.name,h.icon) from Dota2Hero h inner join DotaSpecialHero h1 on h.name = h1.name")
+    fun findNoAzhangHeros(): List<Dota2Hero>
+}
 
 @Repository
 interface NewsRepository : PagingAndSortingRepository<DotaNews, Long> {

@@ -18,12 +18,22 @@ data class DotaVersion(
 @Entity
 data class Dota2Hero(
         @Id
-        val name: String = "",
-        @Column(length = 1023)
-        val imageUrl: String = "",
-        val type: String = "",
-        val icon: String? = ""
-)
+        val name: String = ""
+
+) {
+    @Column(length = 1023)
+    val imageUrl: String? = ""
+    val type: String? = ""
+    var icon: String? = ""
+
+    constructor(name: String, icon: String) : this(name) {
+        this.icon = icon
+    }
+}
+
+
+@Entity
+data class DotaSpecialHero(@Id val name: String = "")
 
 @Entity
 data class HeroDetail(

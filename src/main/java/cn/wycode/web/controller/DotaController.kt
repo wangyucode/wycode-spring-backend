@@ -66,4 +66,11 @@ class DotaController(val heroRepository: HeroRepository,
         val news = newsRepository.findAll(pageRequest)
         return JsonResult.data(news)
     }
+
+    @ApiOperation(value = "获取A杖无效的英雄")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/noAzhangHeros"])
+    fun noAzhangHeros(): JsonResult<List<Dota2Hero>> {
+        val heros = heroRepository.findNoAzhangHeros()
+        return JsonResult.data(heros)
+    }
 }
