@@ -26,6 +26,6 @@ interface HeroDetailRepository : CrudRepository<HeroDetail, String>
 
 @Repository
 interface DotaItemRepository : CrudRepository<DotaItem, String> {
-    @Query("select new DotaItem(i.key,i.name,i.img,i.cname,i.type) from DotaItem i")
+    @Query("select new DotaItem(i.key,i.name,i.img,i.cname,i.type,i.cost) from DotaItem i")
     fun findItemList(): List<DotaItem>
 }

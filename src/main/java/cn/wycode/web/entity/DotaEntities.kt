@@ -81,7 +81,8 @@ data class HeroAbility(
         val coolDown: String = "",
         val tips: String = "",
         @ElementCollection
-        val attributes: Map<String, String> = HashMap()
+        val attributes: Map<String, String> = HashMap(),
+        val num: Int = 0
 )
 
 
@@ -97,7 +98,7 @@ data class DotaItem(
         val notes: String? = null,
         @ElementCollection
         val desc: Map<String, String>? = null,
-        val cost: Int? = null,
+        var cost: Int? = null,
         val mc: String? = null,
         val cd: Int? = null,
         @ElementCollection
@@ -109,11 +110,13 @@ data class DotaItem(
                 name: String,
                 img: String,
                 cname: String,
-                type: String) : this(key = key) {
+                type: String,
+                cost: Int) : this(key = key) {
         this.name = name
         this.img = img
         this.cname = cname
         this.type = type
+        this.cost = cost
     }
 }
 
