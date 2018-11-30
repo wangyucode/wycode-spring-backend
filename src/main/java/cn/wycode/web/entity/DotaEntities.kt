@@ -22,18 +22,30 @@ data class Dota2Hero(
 
 ) {
     @Column(length = 1023)
-    val imageUrl: String? = ""
+    var imageUrl: String? = ""
     val type: String? = ""
     var icon: String? = ""
 
-    constructor(name: String, icon: String) : this(name) {
+    constructor(name: String, icon: String,imageUrl: String) : this(name) {
         this.icon = icon
+        this.imageUrl = imageUrl
     }
 }
 
 
 @Entity
 data class DotaSpecialHero(@Id val name: String = "")
+
+@Entity
+data class DotaAZhangEffect(@Id
+                            @GeneratedValue(generator = "seq_dota_a_zhang_effect")
+                            @SequenceGenerator(name = "seq_dota_a_zhang_effect", sequenceName = "SEQ_DOTA_A_ZHANG_EFFECT", allocationSize = 1, initialValue = 1)
+                            val id: Long? = null,
+                            val heroName: String,
+                            @OneToOne
+                            val ability: HeroAbility,
+                            val desc:String,
+                            val type:Int) //1.增强 2.新技能 3.其它
 
 @Entity
 data class HeroDetail(
