@@ -37,13 +37,12 @@ data class Dota2Hero(
 data class DotaSpecialHero(@Id val name: String = "")
 
 @Entity
-data class DotaAZhangEffect(@Id
-                            @GeneratedValue(generator = "seq_dota_a_zhang_effect")
-                            @SequenceGenerator(name = "seq_dota_a_zhang_effect", sequenceName = "SEQ_DOTA_A_ZHANG_EFFECT", allocationSize = 1, initialValue = 1)
+data class DotaAzhangEffect(@Id
                             val id: Long? = null,
-                            val heroName: String,
                             @OneToOne
-                            val ability: HeroAbility,
+                            val hero: Dota2Hero,
+                            val ability: String,
+                            val icon: String,
                             val desc:String,
                             val type:Int) //1.增强 2.新技能 3.其它
 
