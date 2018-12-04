@@ -40,11 +40,11 @@ data class DotaSpecialHero(@Id val name: String = "")
 data class DotaAzhangEffect(@Id
                             val id: Long? = null,
                             @OneToOne
-                            val hero: Dota2Hero,
-                            val ability: String,
-                            val icon: String,
-                            val desc:String,
-                            val type:Int) //1.增强 2.新技能 3.其它
+                            val hero: Dota2Hero = Dota2Hero(),
+                            val ability: String = "",
+                            val icon: String="",
+                            val desc:String="",
+                            val type:Int=0) //1.增强 2.新技能 3.其它
 
 @Entity
 data class HeroDetail(

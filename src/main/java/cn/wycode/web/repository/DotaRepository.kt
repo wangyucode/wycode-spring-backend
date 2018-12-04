@@ -29,3 +29,6 @@ interface DotaItemRepository : CrudRepository<DotaItem, String> {
     @Query("select new DotaItem(i.key,i.name,i.img,i.cname,i.type,i.cost) from DotaItem i")
     fun findItemList(): List<DotaItem>
 }
+
+@Repository
+interface DotaAzhangEffectRepository : CrudRepository<DotaAzhangEffect, Long>

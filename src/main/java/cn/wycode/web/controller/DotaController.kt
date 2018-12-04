@@ -19,6 +19,7 @@ class DotaController(val heroRepository: HeroRepository,
                      val heroDetailRepository: HeroDetailRepository,
                      val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
+                     val azhangEffectRepository: DotaAzhangEffectRepository,
                      val newsRepository: NewsRepository) {
 
     @ApiOperation(value = "获取数据库版本")
@@ -72,5 +73,12 @@ class DotaController(val heroRepository: HeroRepository,
     fun noAzhangHeros(): JsonResult<List<Dota2Hero>> {
         val heros = heroRepository.findNoAzhangHeros()
         return JsonResult.data(heros)
+    }
+
+    @ApiOperation(value = "获取所有A杖效果")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/AzhangEffects"])
+    fun AzhangEffects(): JsonResult<List<DotaAzhangEffect>> {
+        val effects = azhangEffectRepository.findAll().toList()
+        return JsonResult.data(effects)
     }
 }
