@@ -132,6 +132,7 @@ data class DotaItem(
 }
 
 
+@Deprecated("小程序1.3版本起删除，替换为json文件")
 @Entity
 data class DotaNews(
         @Column(length = 1023)
