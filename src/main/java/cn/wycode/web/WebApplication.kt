@@ -1,6 +1,10 @@
 package cn.wycode.web
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 fun main(args: Array<String>) {
-    println("11111".toInt(2))
+    val path = Paths.get("/var/www/upload/dota/news/")!!
+   path.toFile().listFiles().map { println(it.absolutePath) }
 }
 

@@ -2,18 +2,20 @@ package cn.wycode.web.service.impl
 
 import cn.wycode.web.repository.NewsRepository
 import cn.wycode.web.service.DotaNewsCrawler
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.util.StringUtils
 import us.codecraft.webmagic.*
 import us.codecraft.webmagic.pipeline.Pipeline
 import us.codecraft.webmagic.processor.PageProcessor
-import java.util.*
-import javax.persistence.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 @Service
-class DotaNewsCrawlerImpl(val newsRepository: NewsRepository) : DotaNewsCrawler {
+class DotaNewsCrawlerImpl(val objectMapper: ObjectMapper) : DotaNewsCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -22,14 +24,14 @@ class DotaNewsCrawlerImpl(val newsRepository: NewsRepository) : DotaNewsCrawler 
         Spider.create(DotaNewsProcessor())
                 .addUrl("https://www.dota2.com.cn/news/index.htm")
                 .addUrl("https://www.dota2.com.cn/news/index2.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index3.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index4.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index5.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index6.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index7.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index8.htm")
-//                .addUrl("https://www.dota2.com.cn/news/index9.htm")
-                .addPipeline(SavePipeLine(newsRepository))
+                .addUrl("https://www.dota2.com.cn/news/index3.htm")
+                .addUrl("https://www.dota2.com.cn/news/index4.htm")
+                .addUrl("https://www.dota2.com.cn/news/index5.htm")
+                .addUrl("https://www.dota2.com.cn/news/index6.htm")
+                .addUrl("https://www.dota2.com.cn/news/index7.htm")
+                .addUrl("https://www.dota2.com.cn/news/index8.htm")
+                .addUrl("https://www.dota2.com.cn/news/index9.htm")
+                .addPipeline(SavePipeLine(objectMapper))
                 .run()
     }
 }
@@ -42,24 +44,12 @@ class DotaNewsProcessor : PageProcessor {
 
     private var pageNum = 0
 
-    private val linkPageNum = HashMap<String, Int>()
-
     override fun getSite(): Site {
         return site
     }
 
     override fun process(page: Page?) {
         if (page != null) {
-//            val newsBox = page.html.xpath("//li[@class='pane active']")
-//            val imageUrls = newsBox.xpath("//div[@class='news_logo']/img/@src").all()
-//            val titles = newsBox.xpath("//div[@class='news_msg']/h2[@class='title']/text()").all()
-//            val contents = newsBox.xpath("//div[@class='news_msg']/p[@class='content']/text()").all()
-//            val dates = newsBox.xpath("//div[@class='news_msg']/p[@class='date']/text()").all()
-//            page.putField("titles", titles)
-//            page.putField("imageUrls", imageUrls)
-//            page.putField("contents", contents)
-//            page.putField("dates", dates)
-
             if (page.url.get().matches("https://www\\.dota2\\.com\\.cn/news/index[2-9]?\\.htm".toRegex())) {
                 pageNum++
                 val newsBox = page.html.xpath("//li[@class='pane active']")
@@ -71,39 +61,64 @@ class DotaNewsProcessor : PageProcessor {
                 val newsList = ArrayList<DotaNews>(links.size)
                 for (i in 0 until links.size) {
                     page.addTargetRequest(links[i])
-                    val news = DotaNews(contents[i], titles[i], dates[i], links[i], imageUrls[i])
+                    val detail = links[i].substring(links[i].lastIndexOf('/') + 1)
+                    val news = DotaNews(contents[i], titles[i], dates[i], detail, imageUrls[i])
                     newsList.add(news)
-                    linkPageNum[links[i]] = pageNum
                 }
                 page.putField("news$pageNum", newsList)
+                page.putField("pageNum", pageNum)
             } else {
-                val content = page.html.xpath("//div[@class='content']/tidyText()").get()
-                page.putField(page.url.get(), content)
+                var detail = page.html.xpath("//div[@class='content']/tidyText()").get()?.trim()
+                if(StringUtils.isEmpty(detail)){
+                    detail = page.html.xpath("//div[@class='Inner']/tidyText()").all().joinToString(separator = "\n") { it.trim() }
+                }
+                if(StringUtils.isEmpty(detail)){
+                    detail = page.html.xpath("//div[@id='img-content']/tidyText()").get()?.trim()
+                }
+                if(StringUtils.isEmpty(detail)){
+                    detail = page.html.xpath("//body/tidyText()").get()?.trim()
+                }
+                page.putField("url", page.url.get())
+                page.putField("detail", detail)
             }
-
-            page.putField("pageNum", pageNum)
         }
     }
 
 }
 
-class SavePipeLine(private val newsRepository: NewsRepository) : Pipeline {
+class SavePipeLine(private val objectMapper: ObjectMapper) : Pipeline {
 
+    private val path = Paths.get("/var/www/upload/dota/news/")!!
+
+    init {
+        if (Files.exists(path)) {
+            path.toFile().listFiles().filter { it.path.endsWith(".txt") }.map { it.delete() }
+        } else {
+            Files.createDirectories(path)
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
+
     override fun process(resultItems: ResultItems?, task: Task?) {
         if (resultItems != null && resultItems.all.isNotEmpty()) {
-            val pageNum = resultItems.get<Int>("pageNum")
-            for (i in 1..pageNum) {
-                val newsList = resultItems.get<ArrayList<DotaNews>>("news$i")
-                for (news in newsList) {
-                    news.detail = resultItems.get<String>(news.link)
-                }
-                print(newsList)
+            if (resultItems.all.containsKey("pageNum")) {
+                val pageNum = resultItems.get<Int>("pageNum")
+                val newsList = resultItems.get<ArrayList<DotaNews>>("news$pageNum")
+                val jsonString = objectMapper.writeValueAsString(newsList)
+                Files.copy(jsonString.byteInputStream(), path.resolve("news$pageNum"), StandardCopyOption.REPLACE_EXISTING)
+                logger.info("save news$pageNum success!")
+            } else if (resultItems.all.containsKey("url")) {
+                val url = resultItems.get<String>("url")
+                val name = url.substring(url.lastIndexOf('/') + 1)
+                val detail = resultItems.get<String>("detail")
+                Files.copy(detail.byteInputStream(), path.resolve("$name.txt"), StandardCopyOption.REPLACE_EXISTING)
+                logger.info("save $name.txt success!")
             }
         }
     }
+
 
 }
 
@@ -112,7 +127,6 @@ data class DotaNews(
         var content: String? = "",
         var title: String? = "",
         var date: String? = "",
-        var link: String? = "",
-        var image: String? = "",
-        var detail: String? = "")
+        var detail: String? = "",
+        var image: String? = "")
 
