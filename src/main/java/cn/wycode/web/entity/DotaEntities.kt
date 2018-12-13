@@ -77,6 +77,7 @@ data class HeroDetail(
         val talent10Right: String = "",
         @OneToMany
         @JoinColumn(name = "heroName")
+        @OrderBy("num ASC")
         val abilities: List<HeroAbility> = ArrayList()
 )
 
