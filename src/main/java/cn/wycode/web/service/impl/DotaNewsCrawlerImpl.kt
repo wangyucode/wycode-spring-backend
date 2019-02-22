@@ -1,6 +1,5 @@
 package cn.wycode.web.service.impl
 
-import cn.wycode.web.repository.NewsRepository
 import cn.wycode.web.service.DotaNewsCrawler
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
@@ -9,7 +8,6 @@ import org.springframework.util.StringUtils
 import us.codecraft.webmagic.*
 import us.codecraft.webmagic.pipeline.Pipeline
 import us.codecraft.webmagic.processor.PageProcessor
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
@@ -69,13 +67,13 @@ class DotaNewsProcessor : PageProcessor {
                 page.putField("pageNum", pageNum)
             } else {
                 var detail = page.html.xpath("//div[@class='content']/tidyText()").get()?.trim()
-                if(StringUtils.isEmpty(detail)){
+                if (StringUtils.isEmpty(detail)) {
                     detail = page.html.xpath("//div[@class='Inner']/tidyText()").all().joinToString(separator = "\n") { it.trim() }
                 }
-                if(StringUtils.isEmpty(detail)){
+                if (StringUtils.isEmpty(detail)) {
                     detail = page.html.xpath("//div[@id='img-content']/tidyText()").get()?.trim()
                 }
-                if(StringUtils.isEmpty(detail)){
+                if (StringUtils.isEmpty(detail)) {
                     detail = page.html.xpath("//body/tidyText()").get()?.trim()
                 }
                 page.putField("url", page.url.get())

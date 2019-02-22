@@ -8,3 +8,8 @@ interface DotaNewsCrawler {
 interface DotaLeaderBoardCrawler {
     fun start()
 }
+
+interface DotaMatchCrawler{
+    fun start()
+    fun getResult():String
+}

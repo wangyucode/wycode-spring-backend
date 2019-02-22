@@ -2,6 +2,7 @@ package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
 import cn.wycode.web.repository.*
+import cn.wycode.web.service.DotaMatchCrawler
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.data.domain.Page
@@ -20,7 +21,7 @@ class DotaController(val heroRepository: HeroRepository,
                      val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
                      val azhangEffectRepository: DotaAzhangEffectRepository,
-                     val newsRepository: NewsRepository) {
+                     val dotaMatchCrawler: DotaMatchCrawler) {
 
     @ApiOperation(value = "获取数据库版本")
     @RequestMapping(method = [RequestMethod.GET], path = ["/version"])
@@ -57,15 +58,10 @@ class DotaController(val heroRepository: HeroRepository,
         return JsonResult.data(item)
     }
 
-    @ApiOperation(value = "获取资讯")
-    @RequestMapping(method = [RequestMethod.GET], path = ["/news"])
-    fun news(
-            @RequestParam page: Int,
-            @RequestParam size: Int): JsonResult<Page<DotaNews>> {
-        val sort = Sort.by(Sort.Order.desc("recordDate"))
-        val pageRequest = PageRequest.of(page, size, sort)
-        val news = newsRepository.findAll(pageRequest)
-        return JsonResult.data(news)
+    @ApiOperation(value = "获取赛事")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/matches"])
+    fun matches(): JsonResult<String> {
+        return JsonResult.data(dotaMatchCrawler.getResult())
     }
 
     @ApiOperation(value = "获取A杖无效的英雄")

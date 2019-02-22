@@ -1,5 +1,6 @@
 package cn.wycode.web;
 
+import cn.wycode.web.service.DotaMatchCrawler;
 import cn.wycode.web.service.DotaNewsCrawler;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ public class WebApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
-//    @Autowired
-//    DotaNewsCrawler newsCrawler;
+    @Autowired
+    DotaMatchCrawler crawler;
 
     public static void main(String[] args) {
         startH2Server();
@@ -43,6 +44,6 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-//        newsCrawler.start();
+        crawler.start();
     }
 }

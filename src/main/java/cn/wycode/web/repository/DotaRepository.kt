@@ -12,10 +12,6 @@ interface HeroRepository : CrudRepository<Dota2Hero, String> {
     fun findNoAzhangHeros(): List<Dota2Hero>
 }
 
-@Repository
-interface NewsRepository : PagingAndSortingRepository<DotaNews, Long> {
-    fun findByTitle(title: String): DotaNews?
-}
 
 @Repository
 interface VersionRepository : CrudRepository<DotaVersion, Int>
