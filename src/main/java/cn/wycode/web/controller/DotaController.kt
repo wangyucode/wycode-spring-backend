@@ -3,11 +3,9 @@ package cn.wycode.web.controller
 import cn.wycode.web.entity.*
 import cn.wycode.web.repository.*
 import cn.wycode.web.service.DotaMatchCrawler
+import cn.wycode.web.service.impl.DotaMatchDate
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
@@ -60,7 +58,7 @@ class DotaController(val heroRepository: HeroRepository,
 
     @ApiOperation(value = "获取赛事")
     @RequestMapping(method = [RequestMethod.GET], path = ["/matches"])
-    fun matches(): JsonResult<String> {
+    fun matches(): JsonResult<List<DotaMatchDate>> {
         return JsonResult.data(dotaMatchCrawler.getResult())
     }
 

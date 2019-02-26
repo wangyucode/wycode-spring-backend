@@ -1,7 +1,6 @@
 package cn.wycode.web;
 
 import cn.wycode.web.service.DotaMatchCrawler;
-import cn.wycode.web.service.DotaNewsCrawler;
 import org.h2.tools.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import java.sql.SQLException;
 @SpringBootApplication
 @EnableScheduling
 public class WebApplication implements CommandLineRunner {
-
 
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 

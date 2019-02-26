@@ -1,5 +1,7 @@
 package cn.wycode.web.service
 
+import cn.wycode.web.service.impl.DotaMatchDate
+
 
 interface DotaNewsCrawler {
     fun start()
@@ -11,5 +13,5 @@ interface DotaLeaderBoardCrawler {
 
 interface DotaMatchCrawler{
     fun start()
-    fun getResult():String
+    fun getResult(): ArrayList<DotaMatchDate>
 }
