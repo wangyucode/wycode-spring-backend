@@ -16,6 +16,7 @@ class DotaMatchCrawlerImpl : DotaMatchCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
+    @Volatile
     lateinit var matchDates:ArrayList<DotaMatchDate>
 
     override fun start() {
