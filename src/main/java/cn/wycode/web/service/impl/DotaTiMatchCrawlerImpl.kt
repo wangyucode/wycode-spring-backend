@@ -50,8 +50,8 @@ class DotaTiMatchProcessor(private val crawler: DotaTiMatchCrawlerImpl, private 
             val matchNodes = page.html.css("div.ant-list-item").nodes()
             crawler.matches = ArrayList(matchNodes.size)
             for (matchNode in matchNodes) {
-                val image = matchNode.xpath("//ul/li[1]/span/text()").get()
-                val status = matchNode.xpath("//ul/li[4]/span[1]/img/@src").get()
+                val status = matchNode.xpath("//ul/li[1]/span/text()").get()
+                val image = matchNode.xpath("//ul/li[4]/span[1]/img/@src").get()
                 val name = matchNode.xpath("//ul/li[4]/span[2]/text()").get()
                 val type = matchNode.xpath("//ul/li[3]/span/text()").get()
                 val bonus = matchNode.xpath("//ul/li[7]/text()").get()
