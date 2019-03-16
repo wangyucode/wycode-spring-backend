@@ -3,7 +3,9 @@ package cn.wycode.web.controller
 import cn.wycode.web.entity.*
 import cn.wycode.web.repository.*
 import cn.wycode.web.service.DotaMatchCrawler
+import cn.wycode.web.service.DotaTiCrawler
 import cn.wycode.web.service.impl.DotaMatchDate
+import cn.wycode.web.service.impl.DotaTiMatch
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.web.bind.annotation.RequestMapping
@@ -19,6 +21,7 @@ class DotaController(val heroRepository: HeroRepository,
                      val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
                      val azhangEffectRepository: DotaAzhangEffectRepository,
+                     val dotaTiCrawler: DotaTiCrawler,
                      val dotaMatchCrawler: DotaMatchCrawler) {
 
     @ApiOperation(value = "获取数据库版本")
@@ -60,6 +63,12 @@ class DotaController(val heroRepository: HeroRepository,
     @RequestMapping(method = [RequestMethod.GET], path = ["/matches"])
     fun matches(): JsonResult<List<DotaMatchDate>> {
         return JsonResult.data(dotaMatchCrawler.getResult())
+    }
+
+    @ApiOperation(value = "获取TI赛事安排")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/ti"])
+    fun ti(): JsonResult<List<DotaTiMatch>> {
+        return JsonResult.data(dotaTiCrawler.getResult())
     }
 
     @ApiOperation(value = "获取A杖无效的英雄")
