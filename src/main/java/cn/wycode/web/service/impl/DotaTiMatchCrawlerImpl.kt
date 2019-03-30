@@ -10,6 +10,8 @@ import us.codecraft.webmagic.Spider
 import us.codecraft.webmagic.processor.PageProcessor
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -21,8 +23,10 @@ class DotaTiMatchCrawlerImpl : DotaTiCrawler {
 
     lateinit var matches: ArrayList<DotaTiMatch>
 
+    private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
+
     override fun start() {
-        logger.info("start crawl dota TI matchs-->" + Instant.now().toString())
+        logger.info("start crawl dota TI matchs-->" + timeFormatter.format(LocalDateTime.now()))
         Spider.create(DotaTiMatchProcessor(this, logger))
                 .addUrl("http://ti9.vpgame.com/")
                 .run()

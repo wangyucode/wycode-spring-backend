@@ -19,11 +19,15 @@ public class WebApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
-    @Autowired
-    DotaMatchCrawler crawler;
+    private final DotaMatchCrawler crawler;
+
+    private final DotaTiCrawler tiCrawler;
 
     @Autowired
-    DotaTiCrawler tiCrawler;
+    public WebApplication(DotaMatchCrawler crawler, DotaTiCrawler tiCrawler) {
+        this.crawler = crawler;
+        this.tiCrawler = tiCrawler;
+    }
 
     public static void main(String[] args) {
         startH2Server();

@@ -3,65 +3,63 @@ package cn.wycode.web.service.impl
 import cn.wycode.web.service.DotaMatchCrawler
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
+import org.springframework.web.client.getForObject
 import us.codecraft.webmagic.Page
 import us.codecraft.webmagic.Site
 import us.codecraft.webmagic.Spider
 import us.codecraft.webmagic.processor.PageProcessor
+import us.codecraft.webmagic.selector.Html
 import java.text.SimpleDateFormat
-import java.time.Instant
+import java.time.*
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalField
 import java.util.*
 
 @Service
-class DotaMatchCrawlerImpl(val scheduler: TaskScheduler) : DotaMatchCrawler {
+class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: RestTemplateBuilder) : DotaMatchCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
+    private val restTemplate = restTemplateBuilder.build()
 
     @Volatile
     lateinit var matchDates: ArrayList<DotaMatchDate>
 
+    private val timeFormatter:DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
+
     override fun start() {
-        logger.info("start crawl dota matchs-->" + Instant.now().toString())
-        Spider.create(DotaMatchProcessor(this, logger))
-                .addUrl("http://www.vpgame.com/schedule?game_type=dota")
-                .run()
-
+        logger.info("start crawl dota matchs-->" + timeFormatter.format(LocalDateTime.now()))
+        val result = restTemplate.getForObject<String>("http://www.vpgame.com/schedule?game_type=dota")
+        processResult(result)
     }
 
-    override fun getResult(): ArrayList<DotaMatchDate> {
-        return matchDates
-    }
-}
 
-
-class DotaMatchProcessor(private val crawler: DotaMatchCrawlerImpl, private val logger: Logger) : PageProcessor {
-
-    //500~1000ms
-    private val site: Site = Site.me().setSleepTime((Math.random() * 500 + 500).toInt())
-
-
-    override fun getSite(): Site {
-        return site
-    }
-
-    override fun process(page: Page?) {
-        if (page != null) {
-            val dates = page.html.xpath("//div[@class='schedulelist-list-date']/text()").all()
-            crawler.matchDates = ArrayList(dates.size)
-            val dateBoxes = page.html.xpath("//div[@class='schedulelist-list']").nodes()
+    fun processResult(result:String?){
+        var nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 12L)
+        if(!result.isNullOrEmpty()){
+            val html = Html(result)
+            val dates = html.xpath("//div[@class='schedulelist-list-date']/text()").all()
+            matchDates = ArrayList(dates.size)
+            val dateBoxes = html.xpath("//div[@class='schedulelist-list']").nodes()
             for (i in 0 until dates.size) {
                 var date = dates[i]
                 try {
-                    when (SimpleDateFormat("yyyy-MM-dd").parse(dates[i]).day) {
-                        0 -> date = dates[i] + "（周日）"
-                        1 -> date = dates[i] + "（周一）"
-                        2 -> date = dates[i] + "（周二）"
-                        3 -> date = dates[i] + "（周三）"
-                        4 -> date = dates[i] + "（周四）"
-                        5 -> date = dates[i] + "（周五）"
-                        6 -> date = dates[i] + "（周五）"
+                    val localDate = LocalDate.parse(dates[i],DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    date = if(LocalDate.now(ZoneId.of("UTC+8")).isEqual(localDate)){
+                        dates[i]+"（今天）"
+                    }else {
+                        when (localDate.dayOfWeek!!) {
+                            DayOfWeek.SUNDAY -> dates[i] + "（周日）"
+                            DayOfWeek.MONDAY -> dates[i] + "（周一）"
+                            DayOfWeek.TUESDAY -> dates[i] + "（周二）"
+                            DayOfWeek.WEDNESDAY -> dates[i] + "（周三）"
+                            DayOfWeek.THURSDAY -> dates[i] + "（周四）"
+                            DayOfWeek.FRIDAY -> dates[i] + "（周五）"
+                            DayOfWeek.SATURDAY -> dates[i] + "（周六）"
+                        }
                     }
                 } catch (e: Exception) {
                     logger.error("date parse error!", e)
@@ -81,16 +79,24 @@ class DotaMatchProcessor(private val crawler: DotaMatchCrawlerImpl, private val 
 
                     dotaMatchDate.matchs.add(dotaMatch)
                 }
-                crawler.matchDates.add(dotaMatchDate)
+                matchDates.add(dotaMatchDate)
             }
 
-            logger.info("crawl dota match success date size->${crawler.matchDates.size}")
-            if (crawler.matchDates.size > 0) {
-                crawler.scheduler.schedule({ crawler.start() }, Instant.now().plusSeconds(3600 * 1L))
-            } else {
-                crawler.scheduler.schedule({ crawler.start() }, Instant.now().plusSeconds(3600 * 12L))
+            logger.info("crawl dota match success date size->${matchDates.size}")
+            if (matchDates.size > 0) {
+                nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
             }
+        }else{
+            nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
         }
+
+        scheduler.schedule({start()},nextTimeToCrawl.toInstant(ZoneOffset.UTC))
+
+        logger.info("next crawl dota match on->${timeFormatter.format(nextTimeToCrawl)}")
+    }
+
+    override fun getResult(): ArrayList<DotaMatchDate> {
+        return matchDates
     }
 }
 
