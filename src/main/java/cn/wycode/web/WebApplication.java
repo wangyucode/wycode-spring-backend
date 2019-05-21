@@ -47,7 +47,6 @@ public class WebApplication implements CommandLineRunner {
         }
     }
 
-
     @Override
     public void run(String... args) {
         crawler.start();

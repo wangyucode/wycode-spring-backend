@@ -38,12 +38,12 @@ class SwaggerConfig {
 
     private fun apiInfo(): ApiInfo {
         return ApiInfo("王郁的API文档",
-                "提供App测试及独立APP研发",
+                "用于App测试及独立APP研发",
                 "2.0",
                 "http://wycode.cn",
-                Contact("王郁", "wycode.cn", "wangyu0503@gmail.com"),
+                Contact("王郁", "wycode.cn", "wangyu@wycode.cn"),
                 "wycode.cn All Right Reserved",
-                "http://wycode.cn",
+                "https://wycode.cn",
                 ArrayList<VendorExtension<Any>>())
     }
 }
