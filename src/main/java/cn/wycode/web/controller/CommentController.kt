@@ -1,6 +1,7 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.Comment
+import cn.wycode.web.entity.GithubToken
 import cn.wycode.web.entity.JsonResult
 import cn.wycode.web.repository.CommentAppRepository
 import cn.wycode.web.repository.CommentRepository
@@ -10,20 +11,29 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import org.apache.commons.logging.LogFactory
+import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
 import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.client.RestTemplate
+import org.springframework.util.LinkedMultiValueMap
+
+
 
 @RestController
 @RequestMapping("/api/public/comment")
-@Api(value = "Comment",description = "Comment",tags = ["Comment"])
+@Api(value = "Comment", description = "Comment", tags = ["Comment"])
 class CommentController(
         val commentAppRepository: CommentAppRepository,
         val commentRepository: CommentRepository,
         val storageService: StorageService,
-        val ossService: OssService
+        val ossService: OssService,
+        val restTemplateBuilder: RestTemplateBuilder
 ) {
 
     private val log = LogFactory.getLog(this.javaClass)
@@ -33,7 +43,7 @@ class CommentController(
     @RequestMapping(path = ["/newComment"], method = [RequestMethod.POST])
     fun newComment(@RequestParam accessKey: String,
                    @RequestParam appName: String,
-                   @ApiParam("评论类型，0.文字评论，1.点赞，2.图片评论", defaultValue = "0",example = "0",allowableValues = "0,1,2")
+                   @ApiParam("评论类型，0.文字评论，1.点赞，2.图片评论", defaultValue = "0", example = "0", allowableValues = "0,1,2")
                    @RequestParam type: Int = 0,
                    @RequestParam topicId: String,
                    @RequestParam(required = false) content: String?,
@@ -101,6 +111,22 @@ class CommentController(
                 ?: return JsonResult.error("app不存在，或key错误")
 
         return JsonResult.data(commentRepository.findAllByApp_NameAndTopicId(appName, topicId))
+    }
+
+    @ApiOperation(value = "获取github Token")
+    @RequestMapping(path = ["/githubToken"], method = [RequestMethod.GET])
+    fun githubToken(@RequestParam code: String): JsonResult<String> {
+        val restTemplate = restTemplateBuilder.build()
+        val params = LinkedMultiValueMap<String, String>()
+        params.add("client_id","ac839e7de6bee6fa3776")
+        params.add("client_secret","e40b6c2fbd0ae21f81996aed6d057cf05a7b9951")
+        params.add("code","code")
+        val headers = HttpHeaders()
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
+        val entity = HttpEntity(params, headers)
+        val token = restTemplate.postForObject("https://github.com/login/oauth/access_token", entity, String::class.java)
+        return JsonResult.data(token)
     }
 
 }

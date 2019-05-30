@@ -9,6 +9,6 @@ class MvcConfig:WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/**")
-        registry.addMapping("/v2/api-docs")
+        registry.addMapping("/v2/api-docs") // TODO  this does not work
     }
 }

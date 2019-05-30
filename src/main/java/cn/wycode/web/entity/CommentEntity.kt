@@ -34,3 +34,8 @@ data class CommentApp(
         val name:String = "",
         val accessKey: String = ""
 )
+
+
+data class GithubToken(var access_token:String,
+                       var scope:String,
+                       var token_type:String)
