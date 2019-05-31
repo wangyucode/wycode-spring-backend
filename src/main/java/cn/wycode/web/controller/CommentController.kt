@@ -115,17 +115,17 @@ class CommentController(
 
     @ApiOperation(value = "获取github Token")
     @RequestMapping(path = ["/githubToken"], method = [RequestMethod.GET])
-    fun githubToken(@RequestParam code: String): JsonResult<String> {
+    fun githubToken(@RequestParam code: String): JsonResult<GithubToken> {
         val restTemplate = restTemplateBuilder.build()
         val params = LinkedMultiValueMap<String, String>()
         params.add("client_id","ac839e7de6bee6fa3776")
         params.add("client_secret","e40b6c2fbd0ae21f81996aed6d057cf05a7b9951")
-        params.add("code","code")
+        params.add("code",code)
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED
         val entity = HttpEntity(params, headers)
-        val token = restTemplate.postForObject("https://github.com/login/oauth/access_token", entity, String::class.java)
+        val token = restTemplate.postForObject("https://github.com/login/oauth/access_token", entity, GithubToken::class.java)
         return JsonResult.data(token)
     }
 

@@ -36,6 +36,9 @@ data class CommentApp(
 )
 
 
-data class GithubToken(var access_token:String,
-                       var scope:String,
-                       var token_type:String)
+data class GithubToken(var access_token:String?,
+                       var scope:String?,
+                       var error_description:String?,
+                       var error:String?,
+                       var error_uri:String?,
+                       var token_type:String?)
