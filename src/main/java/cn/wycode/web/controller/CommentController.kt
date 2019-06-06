@@ -24,7 +24,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.util.LinkedMultiValueMap
 
 
-
 @RestController
 @RequestMapping("/api/public/comment")
 @Api(value = "Comment", description = "Comment", tags = ["Comment"])
@@ -44,7 +43,7 @@ class CommentController(
     fun newComment(@RequestParam accessKey: String,
                    @RequestParam appName: String,
                    @ApiParam("评论类型，0.文字评论，1.点赞，2.图片评论", defaultValue = "0", example = "0", allowableValues = "0,1,2")
-                   @RequestParam type: Int = 0,
+                   @RequestParam(required = false, defaultValue = "0") type: Int = 0,
                    @RequestParam topicId: String,
                    @RequestParam(required = false) content: String?,
                    @RequestParam fromUserId: String,
@@ -118,9 +117,9 @@ class CommentController(
     fun githubToken(@RequestParam code: String): JsonResult<GithubToken> {
         val restTemplate = restTemplateBuilder.build()
         val params = LinkedMultiValueMap<String, String>()
-        params.add("client_id","ac839e7de6bee6fa3776")
-        params.add("client_secret","e40b6c2fbd0ae21f81996aed6d057cf05a7b9951")
-        params.add("code",code)
+        params.add("client_id", "ac839e7de6bee6fa3776")
+        params.add("client_secret", "e40b6c2fbd0ae21f81996aed6d057cf05a7b9951")
+        params.add("code", code)
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         headers.contentType = MediaType.APPLICATION_FORM_URLENCODED

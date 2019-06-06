@@ -92,7 +92,7 @@ public class ClipboardController {
             WXClipboard clipboard = wxClipboardRepository.findByOpenid(session.getOpenid());
             if (clipboard == null) {
                 String id = generateId();
-                clipboard = new WXClipboard(id, session.getOpenid(), "请输入或粘贴你想保存的内容，内容可在网页端：https://clipboard.wycode.cn 使用查询码查询。");
+                clipboard = new WXClipboard(id, session.getOpenid(), "请输入或粘贴你想保存的内容，内容可在网页端：https://wycode.cn/clipboard.html 使用查询码查询。");
                 logger.info(clipboard.toString());
             }
             clipboard.setKey(accessKey); //一旦登录就刷新key
