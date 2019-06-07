@@ -1,5 +1,6 @@
 package cn.wycode.web.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModelProperty
 import java.util.*
 import javax.persistence.*
@@ -35,6 +36,7 @@ data class Comment(
 data class CommentApp(
         @Id
         val name: String = "",
+        @JsonIgnore
         val accessKey: String = ""
 )
 
