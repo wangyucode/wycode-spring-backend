@@ -24,21 +24,35 @@ data class Comment(
         val toUserId: String? = null,
         val toUserName: String? = null,
         val toUserIcon: String? = null,
+        @Column(length = 1023)
         val toContent: String? = null,
+        val toId: Long? = null,
+        val deleted: Boolean = false,
         val createTime: Date = Date(),
         var likeCount: Int = 0)
 
 @Entity
 data class CommentApp(
         @Id
-        val name:String = "",
+        val name: String = "",
         val accessKey: String = ""
 )
 
+@Entity
+data class ThirdUser(
+        @Id
+        val id: String = "",
+        val company: String = "",
+        @Column(length = 2047)
+        val userJson: String = "",
+        @ManyToOne
+        val app: CommentApp = CommentApp()
+)
 
-data class GithubToken(var access_token:String?,
-                       var scope:String?,
-                       var error_description:String?,
-                       var error:String?,
-                       var error_uri:String?,
-                       var token_type:String?)
+
+data class GithubToken(var access_token: String?,
+                       var scope: String?,
+                       var error_description: String?,
+                       var error: String?,
+                       var error_uri: String?,
+                       var token_type: String?)

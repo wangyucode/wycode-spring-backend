@@ -3,8 +3,11 @@ package cn.wycode.web.controller
 import cn.wycode.web.entity.Comment
 import cn.wycode.web.entity.GithubToken
 import cn.wycode.web.entity.JsonResult
+import cn.wycode.web.entity.ThirdUser
 import cn.wycode.web.repository.CommentAppRepository
 import cn.wycode.web.repository.CommentRepository
+import cn.wycode.web.repository.ThirdUserRepository
+import cn.wycode.web.service.MailService
 import cn.wycode.web.service.OssService
 import cn.wycode.web.service.StorageService
 import io.swagger.annotations.Api
@@ -15,6 +18,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -30,9 +34,11 @@ import org.springframework.util.LinkedMultiValueMap
 class CommentController(
         val commentAppRepository: CommentAppRepository,
         val commentRepository: CommentRepository,
+        val thirdUserRepository: ThirdUserRepository,
         val storageService: StorageService,
         val ossService: OssService,
-        val restTemplateBuilder: RestTemplateBuilder
+        val restTemplateBuilder: RestTemplateBuilder,
+        val mailService: MailService
 ) {
 
     private val log = LogFactory.getLog(this.javaClass)
@@ -98,7 +104,30 @@ class CommentController(
                 toUserIcon = toComment?.fromUserIcon,
                 toContent = toComment?.content)
         log.info("$fromUserName 评论了 ${app.name} 的 $topicId")
+
+        val reply = if (comment.toUserName.isNullOrEmpty()) "" else "回复：${comment.toUserName}\n"
+        mailService.sendSimpleMail("wangyu@wycode.cn",
+                "评论服务通知",
+                "${app.name} 有新评论！\n" +
+                        "来自：$fromUserName\n" +
+                        reply +
+                        "主题：$topicId\n" +
+                        "内容：\n$contentText")
+
         return JsonResult.data(commentRepository.save(comment))
+    }
+
+    @ApiOperation(value = "用户详细信息")
+    @RequestMapping(path = ["/postUserInfo"], method = [RequestMethod.POST])
+    fun postUserInfo(@RequestParam accessKey: String,
+                     @RequestParam appName: String,
+                     @RequestParam company: String,
+                     @RequestParam userJson: String,
+                     @RequestParam id: String): JsonResult<ThirdUser> {
+        val app = commentAppRepository.findByNameAndAccessKey(appName, accessKey)
+                ?: return JsonResult.error("app不存在，或key错误")
+        val user = ThirdUser(id, company, userJson, app)
+        return JsonResult.data(thirdUserRepository.save(user))
     }
 
     @ApiOperation(value = "获取评论列表")
@@ -109,7 +138,7 @@ class CommentController(
         commentAppRepository.findByNameAndAccessKey(appName, accessKey)
                 ?: return JsonResult.error("app不存在，或key错误")
 
-        return JsonResult.data(commentRepository.findAllByApp_NameAndTopicId(appName, topicId))
+        return JsonResult.data(commentRepository.findAllByApp_NameAndTopicIdAndDeleted(appName, topicId))
     }
 
     @ApiOperation(value = "获取github Token")
