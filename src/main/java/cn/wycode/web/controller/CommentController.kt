@@ -88,7 +88,6 @@ class CommentController(
                 toComment.likeCount++
                 return JsonResult.data(commentRepository.save(toComment))
             }
-
         }
         //需要新增的comment
         val comment = Comment(

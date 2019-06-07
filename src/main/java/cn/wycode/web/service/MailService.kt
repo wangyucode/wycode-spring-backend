@@ -20,6 +20,7 @@ class MailService(private val mailSender: JavaMailSender) {
         message.setText(content)
         try {
             mailSender.send(message)
+            log.error("已发送邮件 $subject 到 $sendTo")
         } catch (e: Exception) {
             log.error("邮件发送失败！", e)
         }
