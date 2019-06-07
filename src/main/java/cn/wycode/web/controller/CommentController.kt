@@ -99,6 +99,7 @@ class CommentController(
                 fromUserId = fromUserId,
                 fromUserName = fromUserName,
                 fromUserIcon = fromUserIcon,
+                toId = toComment?.id,
                 toUserId = toComment?.fromUserId,
                 toUserName = toComment?.fromUserName,
                 toUserIcon = toComment?.fromUserIcon,
