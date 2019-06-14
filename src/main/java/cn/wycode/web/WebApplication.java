@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.sql.SQLException;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 public class WebApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);

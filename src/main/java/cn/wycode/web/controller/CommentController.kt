@@ -1,5 +1,6 @@
 package cn.wycode.web.controller
 
+import cn.wycode.web.ALI_COMMENT_BUCKET_NAME
 import cn.wycode.web.entity.Comment
 import cn.wycode.web.entity.GithubToken
 import cn.wycode.web.entity.JsonResult
@@ -18,14 +19,12 @@ import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.client.RestTemplate
-import org.springframework.util.LinkedMultiValueMap
 
 
 @RestController
@@ -74,7 +73,7 @@ class CommentController(
             if (!file.exists()) {
                 return JsonResult.error("相片不存在")
             }
-            contentText = ossService.putFile(OssService.COMMENT_BUCKET_NAME, appName, file)
+            contentText = ossService.putFile(ALI_COMMENT_BUCKET_NAME, appName, file)
                     ?: return JsonResult.error("评论失败，请重试")
         }
         //处理回复

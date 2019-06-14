@@ -64,5 +64,6 @@ dependencies {
     }
     compile('com.baidu.aip:java-sdk:4.6.1')
     compile('com.aliyun.oss:aliyun-sdk-oss:2.8.3')
+    compile("com.aliyun.openservices:aliyun-log:0.6.32")
 }
 

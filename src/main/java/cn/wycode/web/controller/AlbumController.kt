@@ -1,5 +1,6 @@
 package cn.wycode.web.controller
 
+import cn.wycode.web.ALI_ALBUM_BUCKET_NAME
 import cn.wycode.web.entity.*
 import cn.wycode.web.repository.AlbumMemberRepository
 import cn.wycode.web.repository.AlbumPhotoRepository
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.io.File
 import java.util.*
 
 @RestController
@@ -119,7 +119,7 @@ class AlbumController(val sessionService: WXSessionService,
         if (user.currentSize > user.maxSize) {
             return JsonResult.error("到达免费存储容量上限，请联系作者提升容量")
         }
-        val path = ossService.putFile(OssService.ALBUM_BUCKET_NAME,""+album.id, file) ?: return JsonResult.error("追加失败，请重试")
+        val path = ossService.putFile(ALI_ALBUM_BUCKET_NAME, "" + album.id, file) ?: return JsonResult.error("追加失败，请重试")
         user.currentSize += file.length()
         userRepository.save(user)
         val photo = AlbumPhoto(desc = desc, path = path, album = album, uploadUser = user)
@@ -156,7 +156,7 @@ class AlbumController(val sessionService: WXSessionService,
         if (getPermission(user, album, member).and(4) != 4) {
             return JsonResult.error("您没有权限")
         }
-        val length = ossService.deleteFile(OssService.ALBUM_BUCKET_NAME,photo.path)
+        val length = ossService.deleteFile(ALI_ALBUM_BUCKET_NAME, photo.path)
         photo.uploadUser.currentSize -= length
         userRepository.save(photo.uploadUser)
         if (album.cover == photo.path) {
