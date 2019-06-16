@@ -47,7 +47,9 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        //TODO
 //        crawler.start();
 //        tiCrawler.start();
+
     }
 }
