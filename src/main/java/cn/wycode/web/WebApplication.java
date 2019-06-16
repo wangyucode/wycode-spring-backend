@@ -2,6 +2,7 @@ package cn.wycode.web;
 
 import cn.wycode.web.service.DotaMatchCrawler;
 import cn.wycode.web.service.DotaTiCrawler;
+import org.assertj.core.util.Arrays;
 import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -47,9 +48,9 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        //TODO
-//        crawler.start();
-//        tiCrawler.start();
-
+        if (Arrays.isNullOrEmpty(args) || (!args[0].equals("dev"))) {
+            crawler.start();
+            tiCrawler.start();
+        }
     }
 }
