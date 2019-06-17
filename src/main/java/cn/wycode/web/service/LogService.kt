@@ -59,7 +59,7 @@ class LogService(val logClient: Client) {
     fun getAppUse(day: Int = 30): List<AppUse> {
         val now = Date().time / 1000L
         val from = (now - day * 24 * 3600)
-        val query = StringBuilder("remote_addr | count(1) as use ,")
+        val query = StringBuilder("remote_addr | SELECT count(1) as use ,")
         query.append("substr(split_part(request_uri,'?',1), 17, 4) as path ")
         query.append("WHERE substr(split_part(request_uri,'?',1), 1, 9) = '/web/api/' ")
         query.append("group by path ")
@@ -69,6 +69,7 @@ class LogService(val logClient: Client) {
         val response = logClient.GetLogs(request)
         if (response != null && response.IsCompleted()) {
             val uses = ArrayList<AppUse>(response.GetCount())
+            val other = AppUse("其它")
             for (log in response.GetLogs()) {
                 val item = log.GetLogItem()
                 val appUse = AppUse()
@@ -90,8 +91,13 @@ class LogService(val logClient: Client) {
                         }
                     }
                 }
-                uses.add(appUse)
+                if (appUse.app == "其它") {
+                    other.use += appUse.use
+                } else {
+                    uses.add(appUse)
+                }
             }
+            uses.add(other)
             return uses
         }
         return emptyList()
