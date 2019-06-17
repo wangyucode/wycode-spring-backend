@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.sql.SQLException;
 
+import cn.wycode.web.ConstantsKt;
+
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
@@ -29,8 +31,17 @@ public class WebApplication implements CommandLineRunner {
     }
 
     public static void main(String[] args) {
+        initArgument(args);
         startH2Server();
         SpringApplication.run(WebApplication.class, args);
+    }
+
+    private static void initArgument(String[] args) {
+        if (Arrays.isNullOrEmpty(args) || (!args[0].equals("dev"))) {
+            ConstantsKt.setALI_LOG_ENDPOINT(ConstantsKt.ALI_LOG_ENDPOINT_INTERNAL);
+        } else {
+            ConstantsKt.setALI_LOG_ENDPOINT(ConstantsKt.ALI_LOG_ENDPOINT_EXTERNAL);
+        }
     }
 
     public static void startH2Server() {

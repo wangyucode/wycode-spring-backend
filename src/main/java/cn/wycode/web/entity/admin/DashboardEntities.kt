@@ -5,3 +5,8 @@ data class Visitor(
         var uv: Int = 0,
         var time: String = ""
 )
+
+data class AppUse(
+        var app: String = "",
+        var use: Int = 0
+)
