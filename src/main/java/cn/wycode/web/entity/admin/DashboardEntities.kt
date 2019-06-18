@@ -10,3 +10,15 @@ data class AppUse(
         var app: String = "",
         var use: Int = 0
 )
+
+data class ErrorPath(
+        var path: String = "",
+        var method: String = "",
+        var count: Int = 0
+)
+
+data class Geo(
+        var lat: Float = 0f,
+        var lng: Float = 0f,
+        var count: Int = 0
+)

@@ -1,6 +1,8 @@
 package cn.wycode.web.service
 
 import cn.wycode.web.entity.admin.AppUse
+import cn.wycode.web.entity.admin.ErrorPath
+import cn.wycode.web.entity.admin.Geo
 import cn.wycode.web.entity.admin.Visitor
 import com.aliyun.openservices.log.Client
 import com.aliyun.openservices.log.request.GetLogsRequest
@@ -102,4 +104,66 @@ class LogService(val logClient: Client) {
         }
         return emptyList()
     }
+
+    fun getErrorPath(day: Int = 30, code: Int = 500): List<ErrorPath> {
+        val now = Date().time / 1000L
+        val from = (now - day * 24 * 3600)
+        val query = StringBuilder("status=$code | SELECT count(1) as count, ")
+        query.append("split_part(request_uri,'?',1) as path, ")
+        query.append("request_method as method ")
+        query.append("GROUP BY method, path ")
+        query.append("ORDER BY count DESC")
+        val request = GetLogsRequest(project, logstore, from.toInt(), now.toInt(), "", query.toString())
+        val response = logClient.GetLogs(request)
+        if (response != null && response.IsCompleted()) {
+            val errors = ArrayList<ErrorPath>(response.GetCount())
+            for (log in response.GetLogs()) {
+                val item = log.GetLogItem()
+                val error = ErrorPath()
+                for (content in item.GetLogContents()) {
+                    when (content.GetKey()) {
+                        "count" -> error.count = content.GetValue().toInt()
+                        "path" -> error.path = content.GetValue()
+                        "method" -> error.method = content.GetValue()
+                    }
+                }
+                errors.add(error)
+            }
+            return errors
+        }
+        return emptyList()
+    }
+
+    fun getGeo(day: Int = 7): List<Geo> {
+        val now = Date().time / 1000L
+        val from = (now - day * 24 * 3600)
+        val query = StringBuilder("remote_addr | SELECT count(1) as count, ")
+        query.append("ip_to_geo(remote_addr) as geo ")
+        query.append("group by geo ")
+        val request = GetLogsRequest(project, logstore, from.toInt(), now.toInt(), "", query.toString())
+        val response = logClient.GetLogs(request)
+        if (response != null && response.IsCompleted()) {
+            val geos = ArrayList<Geo>(response.GetCount())
+            for (log in response.GetLogs()) {
+                val item = log.GetLogItem()
+                val geo = Geo()
+                for (content in item.GetLogContents()) {
+                    when (content.GetKey()) {
+                        "count" -> geo.count = content.GetValue().toInt()
+                        "geo" -> {
+                            val latlong = content.GetValue().split(',')
+                            if(latlong.size==2){
+                                geo.lat = latlong[0].toFloat()
+                                geo.lng = latlong[1].toFloat()
+                            }
+                        }
+                    }
+                }
+                geos.add(geo)
+            }
+            return geos
+        }
+        return emptyList()
+    }
+
 }
