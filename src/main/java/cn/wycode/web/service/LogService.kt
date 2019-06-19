@@ -20,9 +20,9 @@ class LogService(val logClient: Client) {
         val query = StringBuilder("remote_addr | select approx_distinct(remote_addr) as uv ,")
         query.append("count(1) as pv ,")
         if (day > 7) {
-            query.append("date_format(date_trunc('day', date_parse(time_local, '%d/%b/%Y:%T')), '%c/%e/%k')  as time ")
+            query.append("date_trunc('day', date_parse(time_local, '%d/%b/%Y:%T')) as time ")
         } else {
-            query.append("date_format(date_trunc('hour', date_parse(time_local, '%d/%b/%Y:%T')), '%c/%e/%k')  as time ")
+            query.append("date_trunc('hour', date_parse(time_local, '%d/%b/%Y:%T')) as time ")
         }
         query.append("group by time ")
         query.append("order by time ")
@@ -37,15 +37,7 @@ class LogService(val logClient: Client) {
                     when (content.GetKey()) {
                         "pv" -> visitor.pv = content.GetValue().toInt()
                         "uv" -> visitor.uv = content.GetValue().toInt()
-                        "time" -> {
-                            val times = content.GetValue().split("/")
-                            if (day > 7) {
-                                visitor.time = "${times[0]}月${times[1]}日"
-                            } else {
-                                visitor.time = "${times[1]}日${times[2]}时"
-                            }
-
-                        }
+                        "time" -> visitor.time = content.GetValue()
                     }
                 }
                 visitors.add(visitor)
