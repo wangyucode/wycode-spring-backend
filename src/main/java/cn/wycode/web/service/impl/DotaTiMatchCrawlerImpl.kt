@@ -8,8 +8,6 @@ import us.codecraft.webmagic.Page
 import us.codecraft.webmagic.Site
 import us.codecraft.webmagic.Spider
 import us.codecraft.webmagic.processor.PageProcessor
-import java.text.SimpleDateFormat
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -20,8 +18,7 @@ class DotaTiMatchCrawlerImpl : DotaTiCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-
-    lateinit var matches: ArrayList<DotaTiMatch>
+    var matches: ArrayList<DotaTiMatch> = ArrayList()
 
     private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
 

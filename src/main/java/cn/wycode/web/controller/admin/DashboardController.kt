@@ -1,10 +1,7 @@
 package cn.wycode.web.controller.admin
 
 import cn.wycode.web.entity.JsonResult
-import cn.wycode.web.entity.admin.AppUse
-import cn.wycode.web.entity.admin.ErrorPath
-import cn.wycode.web.entity.admin.Geo
-import cn.wycode.web.entity.admin.Visitor
+import cn.wycode.web.entity.admin.*
 import cn.wycode.web.service.LogService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -51,5 +48,13 @@ class DashboardController(
             @RequestParam(required = false, defaultValue = "7") day: Int = 7
     ): JsonResult<List<Geo>> {
         return JsonResult.data(logService.getGeo(day))
+    }
+
+    @ApiOperation(value = "获取博客访问信息")
+    @RequestMapping(path = ["/blogAccess"], method = [RequestMethod.GET])
+    fun blogAccess(@ApiParam(required = false, defaultValue = "30", example = "0")
+            @RequestParam(required = false, defaultValue = "30") day: Int = 30
+    ): JsonResult<List<BlogAccess>> {
+        return JsonResult.data(logService.getBlogAccess(day))
     }
 }

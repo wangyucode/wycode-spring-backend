@@ -1,9 +1,6 @@
 package cn.wycode.web.service
 
-import cn.wycode.web.entity.admin.AppUse
-import cn.wycode.web.entity.admin.ErrorPath
-import cn.wycode.web.entity.admin.Geo
-import cn.wycode.web.entity.admin.Visitor
+import cn.wycode.web.entity.admin.*
 import com.aliyun.openservices.log.Client
 import com.aliyun.openservices.log.request.GetLogsRequest
 import org.springframework.stereotype.Service
@@ -152,7 +149,7 @@ class LogService(val logClient: Client) {
                         "count" -> geo.count = content.GetValue().toInt()
                         "geo" -> {
                             val latlong = content.GetValue().split(',')
-                            if(latlong.size==2){
+                            if (latlong.size == 2) {
                                 geo.lat = latlong[0].toFloat()
                                 geo.lng = latlong[1].toFloat()
                             }
@@ -162,6 +159,30 @@ class LogService(val logClient: Client) {
                 geos.add(geo)
             }
             return geos
+        }
+        return emptyList()
+    }
+
+    fun getBlogAccess(day: Int = 30): List<BlogAccess> {
+        val now = Date().time / 1000L
+        val from = (now - day * 24 * 3600)
+        val query = "* | select request_uri as path ,COUNT(1) as count WHERE regexp_like(request_uri, '^/20.*\\.html\$') GROUP BY path"
+        val request = GetLogsRequest(project, logstore, from.toInt(), now.toInt(), "", query)
+        val response = logClient.GetLogs(request)
+        if (response != null && response.IsCompleted()) {
+            val blogAccesses = ArrayList<BlogAccess>(response.GetCount())
+            for (log in response.GetLogs()) {
+                val item = log.GetLogItem()
+                val blogAccess = BlogAccess()
+                for (content in item.GetLogContents()) {
+                    when (content.GetKey()) {
+                        "count" -> blogAccess.count = content.GetValue().toInt()
+                        "path" -> blogAccess.path = content.GetValue()
+                    }
+                }
+                blogAccesses.add(blogAccess)
+            }
+            return blogAccesses
         }
         return emptyList()
     }

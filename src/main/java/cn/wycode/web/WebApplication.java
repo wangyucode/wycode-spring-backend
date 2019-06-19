@@ -13,8 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.sql.SQLException;
 
-import cn.wycode.web.ConstantsKt;
-
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

@@ -1,22 +1,16 @@
 package cn.wycode.web.service.impl
 
 import cn.wycode.web.service.DotaMatchCrawler
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
 import org.springframework.web.client.getForObject
-import us.codecraft.webmagic.Page
-import us.codecraft.webmagic.Site
-import us.codecraft.webmagic.Spider
-import us.codecraft.webmagic.processor.PageProcessor
 import us.codecraft.webmagic.selector.Html
-import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalField
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Service
 class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: RestTemplateBuilder) : DotaMatchCrawler {
@@ -25,10 +19,9 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
 
     private val restTemplate = restTemplateBuilder.build()
 
-    @Volatile
-    lateinit var matchDates: ArrayList<DotaMatchDate>
+    var matchDates: ArrayList<DotaMatchDate> = ArrayList()
 
-    private val timeFormatter:DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
+    private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
 
     override fun start() {
         logger.info("start crawl dota matchs-->" + timeFormatter.format(LocalDateTime.now()))
@@ -37,9 +30,9 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
     }
 
 
-    fun processResult(result:String?){
+    fun processResult(result: String?) {
         var nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 12L)
-        if(!result.isNullOrEmpty()){
+        if (!result.isNullOrEmpty()) {
             val html = Html(result)
             val dates = html.xpath("//div[@class='schedulelist-list-date']/text()").all()
             matchDates = ArrayList(dates.size)
@@ -47,10 +40,10 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
             for (i in 0 until dates.size) {
                 var date = dates[i]
                 try {
-                    val localDate = LocalDate.parse(dates[i],DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    date = if(LocalDate.now(ZoneId.of("UTC+8")).isEqual(localDate)){
-                        dates[i]+"（今天）"
-                    }else {
+                    val localDate = LocalDate.parse(dates[i], DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    date = if (LocalDate.now(ZoneId.of("UTC+8")).isEqual(localDate)) {
+                        dates[i] + "（今天）"
+                    } else {
                         when (localDate.dayOfWeek!!) {
                             DayOfWeek.SUNDAY -> dates[i] + "（周日）"
                             DayOfWeek.MONDAY -> dates[i] + "（周一）"
@@ -86,11 +79,11 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
             if (matchDates.size > 0) {
                 nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
             }
-        }else{
+        } else {
             nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
         }
 
-        scheduler.schedule({start()},nextTimeToCrawl.toInstant(ZoneOffset.UTC))
+        scheduler.schedule({ start() }, nextTimeToCrawl.toInstant(ZoneOffset.UTC))
 
         logger.info("next crawl dota match on->${timeFormatter.format(nextTimeToCrawl)}")
     }

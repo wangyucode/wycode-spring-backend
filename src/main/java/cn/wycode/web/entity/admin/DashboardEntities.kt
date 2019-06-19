@@ -22,3 +22,8 @@ data class Geo(
         var lng: Float = 0f,
         var count: Int = 0
 )
+
+data class BlogAccess(
+        var path: String = "",
+        var count: Int = 0
+)

@@ -19,12 +19,6 @@ class Beans {
         return AipImageClassify("14314378", "inGVGNuGboTx9uUoBeXCSxYl", "lMFVkjAwsuK4o94UbecXAdDxb8y4bS0n")
     }
 
-
-    @Bean
-    fun threadPoolTaskScheduler(): TaskScheduler {
-        return ThreadPoolTaskScheduler()
-    }
-
     @Bean
     fun getLogClient(): Client {
         return Client(ALI_LOG_ENDPOINT, ALI_ACCESS_KEY_ID, ALI_ACCESS_KEY_SECRET)

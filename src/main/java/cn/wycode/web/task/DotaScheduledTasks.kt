@@ -19,24 +19,23 @@ class DotaScheduledTasks(val newsCrawler: DotaNewsCrawler,
 
     private val dateFormat = SimpleDateFormat("HH:mm:ss")
 
-    @Scheduled(cron = "0 7 1 ? * 1 ")
+    @Scheduled(cron = "0 7 1 ? * 1 ") //每周1、1点07
     fun crawlTiMatch() {
         logger.info(dateFormat.format(Date()))
         dotaTiCrawler.start()
     }
 
-    @Scheduled(cron = "0 0 2 * * ? ")
+    @Scheduled(cron = "0 0 2 * * ? ") //每天2点
     fun crawlNews() {
         logger.info(dateFormat.format(Date()))
         newsCrawler.start()
     }
 
-    @Scheduled(cron = "0 0 3 * * ? ")
+    @Scheduled(cron = "0 0 3 * * ? ") //每天3点
     fun crawlLeaderBoard() {
         logger.info(dateFormat.format(Date()))
         leaderBoardCrawler.start()
     }
-
 
 
 }
