@@ -1,15 +1,14 @@
 package cn.wycode.web.controller.admin
 
+import cn.wycode.web.ERROR_BASE64_IMAGE
 import cn.wycode.web.entity.JsonResult
 import cn.wycode.web.entity.admin.*
 import cn.wycode.web.service.LogService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/public/admin/dashboard")
@@ -53,8 +52,15 @@ class DashboardController(
     @ApiOperation(value = "获取博客访问信息")
     @RequestMapping(path = ["/blogAccess"], method = [RequestMethod.GET])
     fun blogAccess(@ApiParam(required = false, defaultValue = "30", example = "0")
-            @RequestParam(required = false, defaultValue = "30") day: Int = 30
+                   @RequestParam(required = false, defaultValue = "30") day: Int = 30
     ): JsonResult<List<BlogAccess>> {
         return JsonResult.data(logService.getBlogAccess(day))
+    }
+
+
+    @ApiOperation(value = "获取状态图片")
+    @RequestMapping(path = ["/status"], produces = ["image/svg+xml"])
+    fun blogAccess(): ByteArray {
+        return Base64.getDecoder().decode(ERROR_BASE64_IMAGE)
     }
 }
