@@ -59,7 +59,7 @@ class DashboardController(
 
 
     @ApiOperation(value = "获取状态图片")
-    @RequestMapping(path = ["/status"], produces = ["image/svg+xml"])
+    @RequestMapping(path = ["/status"], produces = ["image/svg+xml"], method = [RequestMethod.GET])
     fun blogAccess(): ByteArray {
         return Base64.getDecoder().decode(ERROR_BASE64_IMAGE)
     }
