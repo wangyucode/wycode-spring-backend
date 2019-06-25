@@ -27,7 +27,7 @@ class DashboardController(
     @ApiOperation(value = "获取应用使用数据")
     @RequestMapping(path = ["/appUse"], method = [RequestMethod.GET])
     fun appUse(@ApiParam(required = false, defaultValue = "30", example = "0")
-               @RequestParam(required = false, defaultValue = "30") day: Int = 30): JsonResult<List<AppUse>> {
+               @RequestParam(required = false, defaultValue = "30") day: Int = 30): JsonResult<Set<AppUse>> {
         return JsonResult.data(logService.getAppUse(day))
     }
 

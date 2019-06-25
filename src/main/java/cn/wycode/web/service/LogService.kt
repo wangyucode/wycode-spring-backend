@@ -6,6 +6,7 @@ import com.aliyun.openservices.log.request.GetLogsRequest
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 
 @Service
@@ -47,51 +48,90 @@ class LogService(val logClient: Client) {
         return emptyList()
     }
 
-    fun getAppUse(day: Int = 30): List<AppUse> {
+    fun getAppUse(day: Int = 30): Set<AppUse> {
         val now = Date().time / 1000L
         val from = (now - day * 24 * 3600)
         val query = StringBuilder("remote_addr | SELECT count(1) as use ,")
+        query.append("regexp_extract(http_referer, 'http[s]?://[a-zA-Z0-9._-]+/') as referer, ")
+        query.append("request_method as method, ")
         query.append("substr(split_part(request_uri,'?',1), 17, 4) as path ")
         query.append("WHERE substr(split_part(request_uri,'?',1), 1, 9) = '/web/api/' ")
-        query.append("group by path ")
-        query.append("order by use desc ")
-        query.append("limit 10")
+        query.append("group by path,referer,method ")
+        //query.append("order by use desc ")
+        //query.append("limit 10")
         val request = GetLogsRequest(project, logstore, from.toInt(), now.toInt(), "", query.toString())
         val response = logClient.GetLogs(request)
         if (response != null && response.IsCompleted()) {
-            val uses = ArrayList<AppUse>(response.GetCount())
+            val uses = HashSet<AppUse>(response.GetCount())
             val other = AppUse("其它")
-            for (log in response.GetLogs()) {
+            logs@ for (log in response.GetLogs()) {
                 val item = log.GetLogItem()
                 val appUse = AppUse()
-                for (content in item.GetLogContents()) {
+                val contents = item.GetLogContents()
+                var path: String? = null
+                var referer: String? = null
+                var method: String? = null
+                var use = 0
+                for (content in contents) {
                     when (content.GetKey()) {
-                        "use" -> appUse.use = content.GetValue().toInt()
-                        "path" -> {
-                            when (content.GetValue()) {
-                                "dota" -> appUse.app = "Dota小助手"
-                                "fish" -> appUse.app = "养鱼小助手"
-                                "comm" -> appUse.app = "评论SDK"
-                                "clip" -> appUse.app = "跨平台剪切板"
-                                "albu" -> appUse.app = "宝宝圈"
-                                else -> {
-                                    appUse.app = "其它"
-                                }
-                            }
-
-                        }
+                        "path" -> path = content.GetValue()
+                        "referer" -> referer = content.GetValue()
+                        "method" -> method = content.GetValue()
+                        "use" -> use = content.GetValue().toInt()
                     }
                 }
+
+                when (path) {
+                    "dota" -> {
+                        if (referer != "https://servicewechat.com/") {
+                            continue@logs
+                        }
+                        appUse.app = "Dota小助手"
+                    }
+                    "fish" -> {
+                        if (referer != "https://servicewechat.com/") {
+                            continue@logs
+                        }
+                        appUse.app = "养鱼小助手"
+                    }
+                    "comm" -> {
+                        if (referer == "https://servicewechat.com/" || method == "POST") {
+                            appUse.app = "评论SDK"
+                        } else {
+                            continue@logs
+                        }
+                    }
+                    "clip" -> {
+                        if (referer != "https://servicewechat.com/") {
+                            continue@logs
+                        }
+                        appUse.app = "跨平台剪切板"
+                    }
+                    "albu" -> {
+                        if (referer != "https://servicewechat.com/") {
+                            continue@logs
+                        }
+                        appUse.app = "宝宝圈"
+                    }
+                    else -> {
+                        appUse.app = "其它"
+                    }
+                }
+                appUse.use = use
                 if (appUse.app == "其它") {
-                    other.use += appUse.use
+                    other.use += use
                 } else {
+                    if (uses.contains(appUse)) {
+                        uses.elementAt(uses.indexOf(appUse)).use += use
+                        continue@logs
+                    }
                     uses.add(appUse)
                 }
             }
             uses.add(other)
             return uses
         }
-        return emptyList()
+        return emptySet()
     }
 
     fun getErrorPath(day: Int = 30, code: Int = 500): List<ErrorPath> {

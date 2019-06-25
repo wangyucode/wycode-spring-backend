@@ -6,10 +6,9 @@ data class Visitor(
         var time: String = ""
 )
 
-data class AppUse(
-        var app: String = "",
-        var use: Int = 0
-)
+data class AppUse(var app: String = ""){
+    var use: Int = 0
+}
 
 data class ErrorPath(
         var path: String = "",
