@@ -1,10 +1,12 @@
 package cn.wycode.web
 
-import java.nio.file.Files
-import java.nio.file.Paths
+import cn.wycode.web.utils.getToken
+import cn.wycode.web.utils.tokenTime
 
 fun main(args: Array<String>) {
-    val path = Paths.get("/var/www/upload/dota/news/")!!
-   path.toFile().listFiles().map { println(it.absolutePath) }
+    val token = getToken()
+    println(token)
+    Thread.sleep(5000)
+    println(tokenTime(token))
 }
 
