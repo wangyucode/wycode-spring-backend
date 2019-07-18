@@ -1,16 +1,16 @@
 package cn.wycode.web.config
 
-import com.google.common.base.Predicate
+import io.swagger.annotations.Api
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import springfox.documentation.service.ApiInfo
-import springfox.documentation.service.Contact
-import springfox.documentation.service.VendorExtension
+import springfox.documentation.builders.PathSelectors
+import springfox.documentation.builders.RequestHandlerSelectors
+import springfox.documentation.service.*
 import springfox.documentation.spi.DocumentationType
+import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
-import java.util.ArrayList
 
 /**
  * Swagger相关配置
@@ -24,15 +24,29 @@ class SwaggerConfig {
     fun generateDocket(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .paths(paths()) // and by paths
+                .apis(RequestHandlerSelectors.withClassAnnotation(Api::class.java))
                 .build()
+                .securityContexts(listOf(securityContext()))
+                .securitySchemes(listOf(apiKey()))
                 .apiInfo(apiInfo())
     }
 
+    private fun securityContext(): SecurityContext {
+        return SecurityContext.builder()
+                .securityReferences(defaultAuth())
+                .forPaths(PathSelectors.regex("/api/public/admin/.*"))
+                .build()
+    }
 
-    //Here is an example where we select any api that matches one of these paths
-    private fun paths(): Predicate<String> {
-        return Predicate { it?.matches(".api.*".toRegex()) ?: false }
+    fun defaultAuth(): List<SecurityReference> {
+        val authorizationScope = AuthorizationScope("global", "accessEverything")
+        val authorizationScopes = arrayOf(authorizationScope)
+        return listOf(SecurityReference("token", authorizationScopes))
+    }
+
+
+    fun apiKey(): ApiKey {
+        return ApiKey("token", "X-Auth-Token", "header")
     }
 
 
@@ -44,6 +58,6 @@ class SwaggerConfig {
                 Contact("王郁", "wycode.cn", "wangyu@wycode.cn"),
                 "wycode.cn All Right Reserved",
                 "https://wycode.cn",
-                ArrayList<VendorExtension<Any>>())
+                emptyList())
     }
 }
