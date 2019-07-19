@@ -3,8 +3,6 @@ package cn.wycode.web
 import com.aliyun.openservices.log.Client
 import com.baidu.aip.imageclassify.AipImageClassify
 import org.springframework.context.annotation.Bean
-import org.springframework.scheduling.TaskScheduler
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import org.springframework.stereotype.Component
 
 

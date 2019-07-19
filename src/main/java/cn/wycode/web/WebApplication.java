@@ -37,11 +37,9 @@ public class WebApplication implements CommandLineRunner {
     }
 
     private static void initArgument(String[] args) {
-        if (Arrays.isNullOrEmpty(args) || (!args[0].equals("dev"))) {
-            ConstantsKt.setALI_LOG_ENDPOINT(ConstantsKt.ALI_LOG_ENDPOINT_INTERNAL);
-        } else {
-            ConstantsKt.setALI_LOG_ENDPOINT(ConstantsKt.ALI_LOG_ENDPOINT_EXTERNAL);
-        }
+        boolean isDev = args.length > 0 && "dev".equals(args[0]);
+        ConstantsKt.setDEV(isDev);
+        ConstantsKt.setALI_LOG_ENDPOINT(isDev ? ConstantsKt.ALI_LOG_ENDPOINT_EXTERNAL : ConstantsKt.ALI_LOG_ENDPOINT_INTERNAL);
     }
 
     public static void startH2Server() {
@@ -59,7 +57,7 @@ public class WebApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (Arrays.isNullOrEmpty(args) || (!args[0].equals("dev"))) {
+        if (!ConstantsKt.getDEV()) {
             crawler.start();
             tiCrawler.start();
         }
