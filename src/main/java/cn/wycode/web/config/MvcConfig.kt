@@ -19,11 +19,12 @@ class MvcConfig : WebMvcConfigurer {
         val config = CorsConfiguration()
         config.allowCredentials = true
         config.addAllowedOrigin("*")
-        config.allowedMethods = listOf("POST", "OPTIONS", "GET", "DELETE", "PUT")
+        config.addAllowedMethod("*")
+        config.addAllowedHeader("*")
         source.registerCorsConfiguration("/api/**", config)
         source.registerCorsConfiguration("/v2/api-docs", config)
         val bean = FilterRegistrationBean(CorsFilter(source))
-        bean.order = Ordered.HIGHEST_PRECEDENCE
+        bean.order = Ordered.LOWEST_PRECEDENCE - 100
         return bean
     }
 }
