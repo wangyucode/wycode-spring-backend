@@ -2,7 +2,7 @@ package cn.wycode.web.utils
 
 import org.apache.commons.codec.binary.Base64
 
-var LAST_TOKEN = getToken()
+var LAST_TOKEN: String? = null
 
 /**
  * @return
@@ -28,6 +28,7 @@ fun tokenTime(token: String): Long {
 
 fun getToken(): String {
     val now = System.currentTimeMillis() / 1000L
-    //val hash = HmacUtils(HmacAlgorithms.HMAC_MD5, "wangyu").hmacHex("$now".toByteArray())
-    return String(Base64.encodeBase64("$now".toByteArray(),true))
+    val token = Base64.encodeBase64String("$now".toByteArray())
+    LAST_TOKEN = token
+    return token
 }
