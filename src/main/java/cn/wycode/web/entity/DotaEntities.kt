@@ -26,7 +26,7 @@ data class Dota2Hero(
     val type: String? = ""
     var icon: String? = ""
 
-    constructor(name: String, icon: String,imageUrl: String) : this(name) {
+    constructor(name: String, icon: String, imageUrl: String) : this(name) {
         this.icon = icon
         this.imageUrl = imageUrl
     }
@@ -42,9 +42,9 @@ data class DotaAzhangEffect(@Id
                             @OneToOne
                             val hero: Dota2Hero = Dota2Hero(),
                             val ability: String = "",
-                            val icon: String="",
-                            val desc:String="",
-                            val type:Int=0) //1.增强 2.新技能 3.其它
+                            val icon: String = "",
+                            val desc: String = "",
+                            val type: Int = 0) //1.增强 2.新技能 3.其它
 
 @Entity
 data class HeroDetail(
@@ -130,25 +130,6 @@ data class DotaItem(
         this.type = type
         this.cost = cost
     }
-}
-
-
-@Deprecated("小程序1.3版本起删除，替换为json文件")
-@Entity
-data class DotaNews(
-        @Column(length = 1023)
-        var content: String? = "",
-        var title: String? = "",
-        var newsDate: String? = "",
-        var link: String? = "") {
-
-
-    @Id
-    @GeneratedValue(generator = "seq_dota_news")
-    @SequenceGenerator(name = "seq_dota_news", sequenceName = "SEQ_DOTA_NEWS", allocationSize = 1, initialValue = 1)
-    val id: Long? = null
-
-    var recordDate: Date = Date()
 }
 
 data class DotaLeaderBoard(var leaderboard: List<BoardItem> = ArrayList())

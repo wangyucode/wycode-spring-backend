@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface HeroRepository : CrudRepository<Dota2Hero, String> {
+    @Deprecated("小程序更新删除A杖后去除")
     @Query("select new Dota2Hero(h.name,h.icon,h.imageUrl) from Dota2Hero h inner join DotaSpecialHero h1 on h.name = h1.name")
     fun findNoAzhangHeros(): List<Dota2Hero>
 }
@@ -19,6 +20,11 @@ interface VersionRepository : CrudRepository<DotaVersion, Int>
 @Repository
 interface HeroDetailRepository : CrudRepository<HeroDetail, String>
 
+@Repository
+interface AbilityRepository : CrudRepository<HeroAbility, String> {
+    fun deleteAllByHeroName(name: String)
+}
+
 
 @Repository
 interface DotaItemRepository : CrudRepository<DotaItem, String> {
@@ -26,5 +32,6 @@ interface DotaItemRepository : CrudRepository<DotaItem, String> {
     fun findItemList(): List<DotaItem>
 }
 
+@Deprecated("小程序更新删除A杖后去除")
 @Repository
 interface DotaAzhangEffectRepository : CrudRepository<DotaAzhangEffect, Long>
