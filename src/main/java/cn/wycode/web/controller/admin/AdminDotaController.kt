@@ -68,8 +68,8 @@ class AdminDotaController(
     @Transactional
     fun deleteHero(@RequestParam name: String): JsonResult<Any> {
         abilityRepository.deleteAllByHeroName(name)
-        detailRepository.deleteById(name)
-        heroRepository.deleteById(name)
+        if (detailRepository.existsById(name)) detailRepository.deleteById(name)
+        if (heroRepository.existsById(name)) heroRepository.deleteById(name)
         return JsonResult.data(null)
     }
 }
