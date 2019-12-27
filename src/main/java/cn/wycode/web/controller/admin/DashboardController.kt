@@ -41,14 +41,6 @@ class DashboardController(
         return JsonResult.data(logService.getErrorPath(day, code))
     }
 
-    @ApiOperation(value = "获取IP地理信息")
-    @RequestMapping(path = ["/geo"], method = [RequestMethod.GET])
-    fun geo(@ApiParam(required = false, defaultValue = "7", example = "0")
-            @RequestParam(required = false, defaultValue = "7") day: Int = 7
-    ): JsonResult<List<Geo>> {
-        return JsonResult.data(logService.getGeo(day))
-    }
-
     @ApiOperation(value = "获取博客访问信息")
     @RequestMapping(path = ["/blogAccess"], method = [RequestMethod.GET])
     fun blogAccess(@ApiParam(required = false, defaultValue = "30", example = "0")

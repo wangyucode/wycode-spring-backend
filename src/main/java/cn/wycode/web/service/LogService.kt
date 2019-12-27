@@ -163,38 +163,6 @@ class LogService(val logClient: Client) {
         return emptyList()
     }
 
-    fun getGeo(day: Int = 7): List<Geo> {
-        val now = Date().time / 1000L
-        val from = (now - day * 24 * 3600)
-        val query = StringBuilder("remote_addr | SELECT count(1) as count, ")
-        query.append("ip_to_geo(remote_addr) as geo ")
-        query.append("group by geo ")
-        val request = GetLogsRequest(project, logstore, from.toInt(), now.toInt(), "", query.toString())
-        val response = logClient.GetLogs(request)
-        if (response != null && response.IsCompleted()) {
-            val geos = ArrayList<Geo>(response.GetCount())
-            for (log in response.GetLogs()) {
-                val item = log.GetLogItem()
-                val geo = Geo()
-                for (content in item.GetLogContents()) {
-                    when (content.GetKey()) {
-                        "count" -> geo.count = content.GetValue().toInt()
-                        "geo" -> {
-                            val latlong = content.GetValue().split(',')
-                            if (latlong.size == 2) {
-                                geo.lat = latlong[0].toFloat()
-                                geo.lng = latlong[1].toFloat()
-                            }
-                        }
-                    }
-                }
-                geos.add(geo)
-            }
-            return geos
-        }
-        return emptyList()
-    }
-
     fun getBlogAccess(day: Int = 30): List<BlogAccess> {
         val now = Date().time / 1000L
         val from = (now - day * 24 * 3600)
