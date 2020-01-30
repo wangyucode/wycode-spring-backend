@@ -30,6 +30,9 @@ interface AbilityRepository : CrudRepository<HeroAbility, String> {
 interface DotaItemRepository : CrudRepository<DotaItem, String> {
     @Query("select new DotaItem(i.key,i.name,i.img,i.cname,i.type,i.cost) from DotaItem i")
     fun findItemList(): List<DotaItem>
+
+    @Query("DELETE FROM DOTA_ITEM_COMPONENTS WHERE components = ? ", nativeQuery = true)
+    fun deleteComponents(key: String)
 }
 
 @Deprecated("小程序更新删除A杖后去除")

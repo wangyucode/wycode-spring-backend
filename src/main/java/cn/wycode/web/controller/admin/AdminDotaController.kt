@@ -59,6 +59,7 @@ class AdminDotaController(
     @RequestMapping(path = ["/deleteItem"], method = [RequestMethod.POST])
     fun deleteItem(@RequestParam key: String): JsonResult<Any> {
         itemRepository.deleteById(key)
+        itemRepository.deleteComponents(key)
         return JsonResult.data(null)
     }
 
