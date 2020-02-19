@@ -60,13 +60,13 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
                 val dotaMatchDate = DotaMatchDate(date)
                 val matchBoxes = dateBoxes[i].xpath("//div[@class='schedulelist-list-item']").nodes()
                 for (j in 0 until matchBoxes.size) {
-                    val matchName = matchBoxes[j].xpath("//a/ul/li[3]/text()").get()
-                    val matchTime = matchBoxes[j].xpath("//a/ul/li[1]/span[@class='times']/text()").get()
-                    val bestOf = matchBoxes[j].xpath("//a/ul/li[1]/span[@class='box']/text()").get()
-                    val teamNameA = matchBoxes[j].xpath("//a/ul/li[2]/div/span[1]/text()").get()
-                    val teamLogoA = matchBoxes[j].xpath("//a/ul/li[2]/div/span[2]/img/@src").get()
-                    val teamNameB = matchBoxes[j].xpath("//a/ul/li[2]/div/span[5]/text()").get()
-                    val teamLogoB = matchBoxes[j].xpath("//a/ul/li[2]/div/span[4]/img/@src").get()
+                    val matchName = matchBoxes[j].xpath("//ul/li[1]/p/text()").get()
+                    val matchTime = matchBoxes[j].xpath("//ul/li[1]/div/span[@class='times']/text()").get()
+                    val bestOf = matchBoxes[j].xpath("//ul/li[1]/div/span[@class='box']/text()").get()
+                    val teamNameA = matchBoxes[j].xpath("//ul/li[2]/div/span[1]/text()").get()
+                    val teamLogoA = matchBoxes[j].xpath("//ul/li[2]/div/span[2]/img/@src").get()
+                    val teamNameB = matchBoxes[j].xpath("//ul/li[2]/div/span[5]/text()").get()
+                    val teamLogoB = matchBoxes[j].xpath("//ul/li[2]/div/span[4]/img/@src").get()
 
                     val dotaMatch = DotaMatch(matchName, matchTime, bestOf, teamNameA, teamLogoA, teamNameB, teamLogoB)
 
@@ -77,10 +77,10 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
 
             logger.info("crawl dota match success date size->${matchDates.size}")
             if (matchDates.size > 0) {
-                nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
+                nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 2L)
             }
         } else {
-            nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 1L)
+            nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 2L)
         }
 
         scheduler.schedule({ start() }, nextTimeToCrawl.toInstant(ZoneOffset.UTC))
