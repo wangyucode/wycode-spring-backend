@@ -4,10 +4,12 @@ import cn.wycode.web.service.DotaNewsCrawler
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.util.CollectionUtils
 import org.springframework.util.StringUtils
 import us.codecraft.webmagic.*
 import us.codecraft.webmagic.pipeline.Pipeline
 import us.codecraft.webmagic.processor.PageProcessor
+import us.codecraft.webmagic.selector.Selectable
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
@@ -19,23 +21,19 @@ class DotaNewsCrawlerImpl(val objectMapper: ObjectMapper) : DotaNewsCrawler {
 
     override fun start() {
         logger.info("start crawl dota news")
-        Spider.create(DotaNewsProcessor())
+        Spider.create(DotaNewsProcessor(objectMapper))
                 .addUrl("https://www.dota2.com.cn/news/index.htm")
                 .addUrl("https://www.dota2.com.cn/news/index2.htm")
                 .addUrl("https://www.dota2.com.cn/news/index3.htm")
                 .addUrl("https://www.dota2.com.cn/news/index4.htm")
                 .addUrl("https://www.dota2.com.cn/news/index5.htm")
-                .addUrl("https://www.dota2.com.cn/news/index6.htm")
-                .addUrl("https://www.dota2.com.cn/news/index7.htm")
-                .addUrl("https://www.dota2.com.cn/news/index8.htm")
-                .addUrl("https://www.dota2.com.cn/news/index9.htm")
                 .addPipeline(SavePipeLine(objectMapper))
                 .run()
     }
 }
 
 
-class DotaNewsProcessor : PageProcessor {
+class DotaNewsProcessor(private val objectMapper: ObjectMapper) : PageProcessor {
 
     //500~1000ms
     private val site: Site = Site.me().setSleepTime((Math.random() * 500 + 500).toInt())
@@ -66,19 +64,35 @@ class DotaNewsProcessor : PageProcessor {
                 page.putField("news$pageNum", newsList)
                 page.putField("pageNum", pageNum)
             } else {
-                var detail = page.html.xpath("//div[@class='content']/tidyText()").get()?.trim()
-                if (StringUtils.isEmpty(detail)) {
-                    detail = page.html.xpath("//div[@class='Inner']/tidyText()").all().joinToString(separator = "\n") { it.trim() }
-                }
-                if (StringUtils.isEmpty(detail)) {
-                    detail = page.html.xpath("//div[@id='img-content']/tidyText()").get()?.trim()
-                }
-                if (StringUtils.isEmpty(detail)) {
-                    detail = page.html.xpath("//body/tidyText()").get()?.trim()
+                // 官方文章
+                val nodes = page.html.xpath("//div[@class='content']/p").nodes()
+                val details = ArrayList<DotaNewsNode>()
+                if (!CollectionUtils.isEmpty(nodes)) {
+                    for (node in nodes) {
+                        appendNode(details, node)
+                    }
                 }
                 page.putField("url", page.url.get())
-                page.putField("detail", detail)
+                page.putField("detail", objectMapper.writeValueAsString(details))
             }
+        }
+    }
+
+    private fun appendNode(details: ArrayList<DotaNewsNode>, node: Selectable) {
+        val img = node.xpath("//img/@src").get()
+        if (!StringUtils.isEmpty(img)) {
+            val newsNode = DotaNewsNode("img", img)
+            details.add(newsNode)
+        } else {
+            val text = node.xpath("/tidyText()").get().trim()
+            if (StringUtils.isEmpty(text)){
+                val newsNode = DotaNewsNode("br", null)
+                details.add(newsNode)
+            }else{
+                val newsNode = DotaNewsNode("p", text)
+                details.add(newsNode)
+            }
+
         }
     }
 
@@ -90,7 +104,7 @@ class SavePipeLine(private val objectMapper: ObjectMapper) : Pipeline {
 
     init {
         if (Files.exists(path)) {
-            path.toFile().listFiles().filter { it.path.endsWith(".txt") }.map { it.delete() }
+            path.toFile().listFiles()?.filter { it.path.endsWith(".json") }?.map { it.delete() }
         } else {
             Files.createDirectories(path)
         }
@@ -111,8 +125,8 @@ class SavePipeLine(private val objectMapper: ObjectMapper) : Pipeline {
                 val url = resultItems.get<String>("url")
                 val name = url.substring(url.lastIndexOf('/') + 1)
                 val detail = resultItems.get<String>("detail")
-                Files.copy(detail.byteInputStream(), path.resolve("$name.txt"), StandardCopyOption.REPLACE_EXISTING)
-                logger.info("save $name.txt success!")
+                Files.copy(detail.byteInputStream(), path.resolve("$name.json"), StandardCopyOption.REPLACE_EXISTING)
+                logger.info("save $name.json success!")
             }
         }
     }
@@ -127,4 +141,7 @@ data class DotaNews(
         var date: String? = "",
         var detail: String? = "",
         var image: String? = "")
+
+data class DotaNewsNode(var type: String,
+                        var content: String?)
 
