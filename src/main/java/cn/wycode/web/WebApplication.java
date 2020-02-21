@@ -1,5 +1,6 @@
 package cn.wycode.web;
 
+import cn.wycode.web.service.DotaLeaderBoardCrawler;
 import cn.wycode.web.service.DotaMatchCrawler;
 import cn.wycode.web.service.DotaTiCrawler;
 import org.h2.tools.Server;
@@ -20,13 +21,14 @@ import java.sql.SQLException;
 public class WebApplication implements CommandLineRunner {
 
     private final DotaMatchCrawler crawler;
-
     private final DotaTiCrawler tiCrawler;
+    private final DotaLeaderBoardCrawler leaderBoardCrawler;
 
     @Autowired
-    public WebApplication(DotaMatchCrawler crawler, DotaTiCrawler tiCrawler) {
+    public WebApplication(DotaMatchCrawler crawler, DotaTiCrawler tiCrawler, DotaLeaderBoardCrawler leaderBoardCrawler) {
         this.crawler = crawler;
         this.tiCrawler = tiCrawler;
+        this.leaderBoardCrawler = leaderBoardCrawler;
     }
 
     public static void main(String[] args) {
@@ -59,6 +61,7 @@ public class WebApplication implements CommandLineRunner {
         if (!ConstantsKt.getDEV()) {
             crawler.start();
             tiCrawler.start();
+            leaderBoardCrawler.start();
         }
     }
 }

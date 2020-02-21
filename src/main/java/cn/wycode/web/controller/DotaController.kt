@@ -2,10 +2,12 @@ package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
 import cn.wycode.web.repository.*
+import cn.wycode.web.service.DotaLeaderBoardCrawler
 import cn.wycode.web.service.DotaMatchCrawler
 import cn.wycode.web.service.DotaTiCrawler
 import cn.wycode.web.service.impl.DotaMatchDate
 import cn.wycode.web.service.impl.DotaRecentMatch
+import cn.wycode.web.service.impl.DotaTeam
 import cn.wycode.web.service.impl.DotaTiMatch
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -23,6 +25,7 @@ class DotaController(val heroRepository: HeroRepository,
                      val itemRepository: DotaItemRepository,
                      val azhangEffectRepository: DotaAzhangEffectRepository,
                      val dotaTiCrawler: DotaTiCrawler,
+                     val dotaLeaderBoardCrawler: DotaLeaderBoardCrawler,
                      val dotaMatchCrawler: DotaMatchCrawler) {
 
     @ApiOperation(value = "获取数据库版本")
@@ -69,7 +72,13 @@ class DotaController(val heroRepository: HeroRepository,
     @ApiOperation(value = "获取热门赛事")
     @RequestMapping(method = [RequestMethod.GET], path = ["/hot-matches"])
     fun hotMatches(): JsonResult<List<DotaRecentMatch>> {
-        return JsonResult.data(dotaMatchCrawler.getRecentMatch())
+        return JsonResult.data(dotaLeaderBoardCrawler.getRecentMatch())
+    }
+
+    @ApiOperation(value = "获取战队积分")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/teams"])
+    fun teams(): JsonResult<List<DotaTeam>> {
+        return JsonResult.data(dotaLeaderBoardCrawler.getTeamScores())
     }
 
     @ApiOperation(value = "获取TI赛事安排")
