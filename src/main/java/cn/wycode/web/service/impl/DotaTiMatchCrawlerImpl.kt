@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
+@Deprecated("1.6上线后删除")
 @Service
 class DotaTiMatchCrawlerImpl : DotaTiCrawler {
 

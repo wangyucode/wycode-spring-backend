@@ -5,6 +5,7 @@ import cn.wycode.web.repository.*
 import cn.wycode.web.service.DotaMatchCrawler
 import cn.wycode.web.service.DotaTiCrawler
 import cn.wycode.web.service.impl.DotaMatchDate
+import cn.wycode.web.service.impl.DotaRecentMatch
 import cn.wycode.web.service.impl.DotaTiMatch
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -63,6 +64,12 @@ class DotaController(val heroRepository: HeroRepository,
     @RequestMapping(method = [RequestMethod.GET], path = ["/matches"])
     fun matches(): JsonResult<List<DotaMatchDate>> {
         return JsonResult.data(dotaMatchCrawler.getResult())
+    }
+
+    @ApiOperation(value = "获取热门赛事")
+    @RequestMapping(method = [RequestMethod.GET], path = ["/hot-matches"])
+    fun hotMatches(): JsonResult<List<DotaRecentMatch>> {
+        return JsonResult.data(dotaMatchCrawler.getRecentMatch())
     }
 
     @ApiOperation(value = "获取TI赛事安排")

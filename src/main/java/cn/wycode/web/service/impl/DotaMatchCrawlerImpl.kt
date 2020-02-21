@@ -1,10 +1,13 @@
 package cn.wycode.web.service.impl
 
 import cn.wycode.web.service.DotaMatchCrawler
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
+import org.springframework.util.StringUtils
 import org.springframework.web.client.getForObject
 import us.codecraft.webmagic.selector.Html
 import java.time.*
@@ -13,13 +16,14 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @Service
-class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: RestTemplateBuilder) : DotaMatchCrawler {
+class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: RestTemplateBuilder, val objectMapper: ObjectMapper) : DotaMatchCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     private val restTemplate = restTemplateBuilder.build()
 
     var matchDates: ArrayList<DotaMatchDate> = ArrayList()
+    var matches: ArrayList<DotaRecentMatch> = ArrayList()
 
     private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
 
@@ -27,6 +31,31 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
         logger.info("start crawl dota matchs-->" + timeFormatter.format(LocalDateTime.now()))
         val result = restTemplate.getForObject<String>("http://www.vpgame.com/schedule?game_type=dota")
         processResult(result)
+
+        logger.info("start crawl dota recently matches-->" + timeFormatter.format(LocalDateTime.now()))
+        val matchesString = restTemplate.getForObject<String>("http://www.vpgame.com/schedule/sha/dota2/pro/webservice/league/list/all/v4?game_type=dota&t=" + Date().time)
+        if (!StringUtils.isEmpty(matchesString)) processMatches(matchesString!!)
+    }
+
+    private fun processMatches(matchesString: String) {
+        val response = objectMapper.readTree(matchesString)
+        val list = response.get("data").get("list") as ArrayNode
+        for (node in list) {
+            val league_name: String? = node.get("league_name").textValue()
+            val start_time: String? = node.get("start_time").textValue()
+            val location: String? = node.get("location").textValue()
+            val end_time: String? = node.get("end_time").textValue().substring(0,10)
+            val prize_poll: String? = node.get("prize_poll").textValue()
+            val organizer: String? = node.get("organizer").textValue()
+            val league_level: String? = node.get("league_level").textValue()
+            val status: String? = node.get("status").textValue()
+            val area: String? = node.get("area").textValue()
+            val logo: String? = node.get("logo").textValue()
+            val match = DotaRecentMatch(league_name, start_time, location, end_time, prize_poll, organizer, league_level, status, area, logo)
+            matches.add(match)
+        }
+
+        logger.info("dota hot match size->${matches.size}")
     }
 
 
@@ -34,8 +63,9 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
         var nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 12L)
         if (!result.isNullOrEmpty()) {
             val html = Html(result)
+            //日程表
             val dates = html.xpath("//div[@class='schedulelist-list-date']/text()").all()
-            matchDates = ArrayList(dates.size)
+            matchDates.clear()
             val dateBoxes = html.xpath("//div[@class='schedulelist-list']").nodes()
             for (i in 0 until dates.size) {
                 var date = dates[i]
@@ -91,6 +121,10 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
     override fun getResult(): ArrayList<DotaMatchDate> {
         return matchDates
     }
+
+    override fun getRecentMatch(): ArrayList<DotaRecentMatch> {
+        return matches
+    }
 }
 
 
@@ -106,4 +140,17 @@ data class DotaMatch(
         var teamLogoA: String? = "",
         var teamNameB: String? = "",
         var teamLogoB: String? = "")
+
+data class DotaRecentMatch(
+        var league_name: String?,
+        var start_time: String?,
+        var location: String?,
+        var end_time: String?,
+        var prize_poll: String?,
+        var organizer: String?,
+        var league_level: String?,
+        var status: String?,
+        var area: String?,
+        var logo: String?
+)
 
