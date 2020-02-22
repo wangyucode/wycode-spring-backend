@@ -57,6 +57,7 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
     }
 
     private fun processTeams(teamsString: String) {
+        teams.clear()
         val response = objectMapper.readTree(teamsString)
         val list = response.get("data") as ArrayNode
         for (node in list) {
@@ -76,13 +77,14 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
     }
 
     private fun processMatches(matchesString: String) {
+        matches.clear()
         val response = objectMapper.readTree(matchesString)
         val list = response.get("data").get("list") as ArrayNode
         for (node in list) {
             val league_name: String? = node.get("league_name").asText("")
-            val start_time: String? = node.get("start_time").asText("")
+            val start_time: String? = node.get("start_time").asText("").replace('-','/').substring(5,10)
             val location: String? = node.get("location").asText("")
-            val end_time: String? = node.get("end_time").asText("").substring(0,10)
+            val end_time: String? = node.get("end_time").asText("").replace('-','/').substring(5,10)
             val prize_poll: String? = node.get("prize_poll").asText("")
             val organizer: String? = node.get("organizer").asText("")
             val league_level: String? = node.get("league_level").asText("")
