@@ -1,8 +1,6 @@
 package cn.wycode.web;
 
-import cn.wycode.web.service.DotaLeaderBoardCrawler;
-import cn.wycode.web.service.DotaMatchCrawler;
-import cn.wycode.web.service.DotaTiCrawler;
+import cn.wycode.web.service.*;
 import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -13,6 +11,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @SpringBootApplication
 @EnableScheduling
@@ -20,15 +21,19 @@ import java.sql.SQLException;
 @ServletComponentScan
 public class WebApplication implements CommandLineRunner {
 
-    private final DotaMatchCrawler crawler;
+    private final DotaMatchCrawler dotaMatchCrawler;
     private final DotaTiCrawler tiCrawler;
     private final DotaLeaderBoardCrawler leaderBoardCrawler;
+    private final DotaNewsCrawler dotaNewsCrawler;
+    private final MailService mailService;
 
     @Autowired
-    public WebApplication(DotaMatchCrawler crawler, DotaTiCrawler tiCrawler, DotaLeaderBoardCrawler leaderBoardCrawler) {
-        this.crawler = crawler;
+    public WebApplication(DotaMatchCrawler crawler, DotaTiCrawler tiCrawler, DotaLeaderBoardCrawler leaderBoardCrawler, DotaNewsCrawler dotaNewsCrawler, MailService mailService) {
+        this.dotaMatchCrawler = crawler;
         this.tiCrawler = tiCrawler;
         this.leaderBoardCrawler = leaderBoardCrawler;
+        this.dotaNewsCrawler = dotaNewsCrawler;
+        this.mailService = mailService;
     }
 
     public static void main(String[] args) {
@@ -59,9 +64,15 @@ public class WebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (!ConstantsKt.getDEV()) {
-            crawler.start();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA);
+            mailService.sendSimpleMail("wangyu@wycode.cn",
+                    "API服务通知",
+                    "API服务已重新启动！\n" +
+                            "时间："+ timeFormatter.format(LocalDateTime.now()) +"\n");
+            dotaMatchCrawler.start();
             tiCrawler.start();
             leaderBoardCrawler.start();
+            dotaNewsCrawler.start();
         }
     }
 }

@@ -130,8 +130,6 @@ class SavePipeLine(private val objectMapper: ObjectMapper) : Pipeline {
             }
         }
     }
-
-
 }
 
 
