@@ -38,6 +38,14 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
     }
 
     override fun start() {
+        logger.info("start crawl dota recently matches-->" + timeFormatter.format(LocalDateTime.now()))
+        val matchesString = restTemplate.getForObject<String>("http://www.vpgame.com/schedule/sha/dota2/pro/webservice/league/list/all/v4?game_type=dota&t=" + Date().time)
+        if (!StringUtils.isEmpty(matchesString)) processMatches(matchesString!!)
+
+        logger.info("start crawl dota team scores-->" + timeFormatter.format(LocalDateTime.now()))
+        val teamsString = restTemplate.getForObject<String>("https://dataservice-sec.vpgame.com/dota2/pro/webservice/ti10/team/list")
+        if (!StringUtils.isEmpty(teamsString)) processTeams(teamsString!!)
+
         val url = "http://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china"
         val response = restTemplate.getForObject(url, String::class.java)
         if (!StringUtils.isEmpty(response) && response!!.contains("leaderboard")) {
@@ -46,14 +54,6 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
             Files.copy(objectMapper.writeValueAsString(leaderBoard).byteInputStream(), path.resolve("leaderboard.json"), StandardCopyOption.REPLACE_EXISTING)
             logger.info("save leaderboard success!")
         }
-
-        logger.info("start crawl dota recently matches-->" + timeFormatter.format(LocalDateTime.now()))
-        val matchesString = restTemplate.getForObject<String>("http://www.vpgame.com/schedule/sha/dota2/pro/webservice/league/list/all/v4?game_type=dota&t=" + Date().time)
-        if (!StringUtils.isEmpty(matchesString)) processMatches(matchesString!!)
-
-        logger.info("start crawl dota team scores-->" + timeFormatter.format(LocalDateTime.now()))
-        val teamsString = restTemplate.getForObject<String>("https://dataservice-sec.vpgame.com/dota2/pro/webservice/ti10/team/list")
-        if (!StringUtils.isEmpty(teamsString)) processTeams(teamsString!!)
     }
 
     private fun processTeams(teamsString: String) {

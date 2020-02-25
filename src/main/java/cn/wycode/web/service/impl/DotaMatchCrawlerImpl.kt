@@ -1,13 +1,9 @@
 package cn.wycode.web.service.impl
 
 import cn.wycode.web.service.DotaMatchCrawler
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Service
-import org.springframework.util.StringUtils
 import org.springframework.web.client.getForObject
 import us.codecraft.webmagic.selector.Html
 import java.time.*
@@ -16,7 +12,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @Service
-class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: RestTemplateBuilder, val objectMapper: ObjectMapper) : DotaMatchCrawler {
+class DotaMatchCrawlerImpl(restTemplateBuilder: RestTemplateBuilder) : DotaMatchCrawler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -30,15 +26,9 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
         logger.info("start crawl dota matchs-->" + timeFormatter.format(LocalDateTime.now()))
         val result = restTemplate.getForObject<String>("http://www.vpgame.com/schedule?game_type=dota")
         processResult(result)
-
-
     }
 
-
-
-
     fun processResult(result: String?) {
-        var nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 12L)
         if (!result.isNullOrEmpty()) {
             val html = Html(result)
             //日程表
@@ -84,16 +74,7 @@ class DotaMatchCrawlerImpl(val scheduler: TaskScheduler, restTemplateBuilder: Re
             }
 
             logger.info("crawl dota match success date size->${matchDates.size}")
-            if (matchDates.size > 0) {
-                nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 2L)
-            }
-        } else {
-            nextTimeToCrawl = LocalDateTime.now(ZoneId.of("UTC+8")).plusSeconds(3600 * 2L)
         }
-
-        scheduler.schedule({ start() }, nextTimeToCrawl.toInstant(ZoneOffset.UTC))
-
-        logger.info("next crawl dota match on->${timeFormatter.format(nextTimeToCrawl)}")
     }
 
     override fun getResult(): ArrayList<DotaMatchDate> {

@@ -64,15 +64,21 @@ public class WebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (!ConstantsKt.getDEV()) {
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA);
-            mailService.sendSimpleMail("wangyu@wycode.cn",
-                    "API服务通知",
-                    "API服务已重新启动！\n" +
-                            "时间："+ timeFormatter.format(LocalDateTime.now()) +"\n");
             dotaMatchCrawler.start();
             tiCrawler.start();
             leaderBoardCrawler.start();
             dotaNewsCrawler.start();
+
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA);
+            mailService.sendSimpleMail("wangyu@wycode.cn",
+                    "API服务通知",
+                    "API服务已重新启动！\n" +
+                            "时间：" + timeFormatter.format(LocalDateTime.now()) + "\n" +
+                            "TI9赛事：" + tiCrawler.getResult().size() + "\n" +
+                            "热门赛事：" + leaderBoardCrawler.getRecentMatch().size() + "\n" +
+                            "TI10队伍积分：" + leaderBoardCrawler.getTeamScores().size() + "\n" +
+                            "最近赛事：" + dotaMatchCrawler.getResult().size() + "\n"
+            );
         }
     }
 }
