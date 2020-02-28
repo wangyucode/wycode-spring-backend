@@ -1,14 +1,15 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
-import cn.wycode.web.repository.*
+import cn.wycode.web.repository.DotaItemRepository
+import cn.wycode.web.repository.HeroDetailRepository
+import cn.wycode.web.repository.HeroRepository
+import cn.wycode.web.repository.VersionRepository
 import cn.wycode.web.service.DotaLeaderBoardCrawler
 import cn.wycode.web.service.DotaMatchCrawler
-import cn.wycode.web.service.DotaTiCrawler
 import cn.wycode.web.service.impl.DotaMatchDate
 import cn.wycode.web.service.impl.DotaRecentMatch
 import cn.wycode.web.service.impl.DotaTeam
-import cn.wycode.web.service.impl.DotaTiMatch
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.web.bind.annotation.RequestMapping
@@ -23,8 +24,6 @@ class DotaController(val heroRepository: HeroRepository,
                      val heroDetailRepository: HeroDetailRepository,
                      val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
-                     val azhangEffectRepository: DotaAzhangEffectRepository,
-                     val dotaTiCrawler: DotaTiCrawler,
                      val dotaLeaderBoardCrawler: DotaLeaderBoardCrawler,
                      val dotaMatchCrawler: DotaMatchCrawler) {
 
@@ -79,25 +78,5 @@ class DotaController(val heroRepository: HeroRepository,
     @RequestMapping(method = [RequestMethod.GET], path = ["/teams"])
     fun teams(): JsonResult<List<DotaTeam>> {
         return JsonResult.data(dotaLeaderBoardCrawler.getTeamScores())
-    }
-
-    @ApiOperation(value = "获取TI赛事安排")
-    @RequestMapping(method = [RequestMethod.GET], path = ["/ti"])
-    fun ti(): JsonResult<List<DotaTiMatch>> {
-        return JsonResult.data(dotaTiCrawler.getResult())
-    }
-
-    @ApiOperation(value = "获取A杖无效的英雄")
-    @RequestMapping(method = [RequestMethod.GET], path = ["/noAzhangHeros"])
-    fun noAzhangHeros(): JsonResult<List<Dota2Hero>> {
-        val heros = heroRepository.findNoAzhangHeros()
-        return JsonResult.data(heros)
-    }
-
-    @ApiOperation(value = "获取所有A杖效果")
-    @RequestMapping(method = [RequestMethod.GET], path = ["/AzhangEffects"])
-    fun AzhangEffects(): JsonResult<List<DotaAzhangEffect>> {
-        val effects = azhangEffectRepository.findAll().toList()
-        return JsonResult.data(effects)
     }
 }

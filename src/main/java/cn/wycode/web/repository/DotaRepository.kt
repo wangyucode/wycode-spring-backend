@@ -7,11 +7,7 @@ import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface HeroRepository : CrudRepository<Dota2Hero, String> {
-    @Deprecated("小程序更新删除A杖后去除")
-    @Query("select new Dota2Hero(h.name,h.icon,h.imageUrl) from Dota2Hero h inner join DotaSpecialHero h1 on h.name = h1.name")
-    fun findNoAzhangHeros(): List<Dota2Hero>
-}
+interface HeroRepository : CrudRepository<Dota2Hero, String>
 
 
 @Repository
@@ -34,7 +30,3 @@ interface DotaItemRepository : CrudRepository<DotaItem, String> {
     @Query("DELETE FROM DOTA_ITEM_COMPONENTS WHERE components = ? ", nativeQuery = true)
     fun deleteComponents(key: String)
 }
-
-@Deprecated("小程序更新删除A杖后去除")
-@Repository
-interface DotaAzhangEffectRepository : CrudRepository<DotaAzhangEffect, Long>
