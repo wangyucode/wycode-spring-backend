@@ -12,6 +12,6 @@ fun randomString(length: Int): String {
     return sb.toString()
 }
 
-fun main() {
-    println(randomString(16))
-}
+//fun main() {
+//    println(randomString(16))
+//}
