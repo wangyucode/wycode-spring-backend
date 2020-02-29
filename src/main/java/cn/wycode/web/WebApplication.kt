@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.web.servlet.ServletComponentScan
 import org.springframework.messaging.simp.SimpMessagingTemplate
+import org.springframework.scheduling.TaskScheduler
 import org.springframework.scheduling.annotation.EnableAsync
 import java.sql.SQLException
 import java.time.LocalDateTime
@@ -21,16 +22,29 @@ class WebApplication(val chatService: ChatService,
                      val leaderBoardCrawler: DotaLeaderBoardCrawler,
                      val dotaNewsCrawler: DotaNewsCrawler,
                      val mailService: MailService,
+                     val taskScheduler: TaskScheduler,
                      val dotaMatchCrawler: DotaMatchCrawler) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
         chatService.messageTemplate = messageTemplate
-        chatService.generateCode()
+        taskScheduler.scheduleAtFixedRate({ chatService.generateCode() }, 1000L * 60 * GEN_CODE_TIME_IN_MINUTES)
 
         if (!DEV) {
-            dotaMatchCrawler.start()
-            leaderBoardCrawler.start()
-            dotaNewsCrawler.start()
+            try{
+                dotaMatchCrawler.start()
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+            try{
+                leaderBoardCrawler.start()
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
+            try{
+                dotaNewsCrawler.start()
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
             val timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
             mailService.sendSimpleMail("wangyu@wycode.cn",
                     "API服务通知",

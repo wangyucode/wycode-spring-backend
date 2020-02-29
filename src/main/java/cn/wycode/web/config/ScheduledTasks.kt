@@ -1,11 +1,12 @@
 package cn.wycode.web.config
 
-import cn.wycode.web.service.*
+import cn.wycode.web.service.DotaLeaderBoardCrawler
+import cn.wycode.web.service.DotaMatchCrawler
+import cn.wycode.web.service.DotaNewsCrawler
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -13,7 +14,6 @@ import java.util.*
 @Configuration
 class ScheduledTasks(val newsCrawler: DotaNewsCrawler,
                      val matchCrawler: DotaMatchCrawler,
-                     val chatService: ChatService,
                      val leaderBoardCrawler: DotaLeaderBoardCrawler) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -28,10 +28,5 @@ class ScheduledTasks(val newsCrawler: DotaNewsCrawler,
         matchCrawler.start()
         leaderBoardCrawler.start()
         newsCrawler.start()
-    }
-
-    @Scheduled(cron = "0 0/$GEN_CODE_TIME_IN_MINUTES * * * ? ") //每10分钟
-    fun genCode() {
-        chatService.generateCode()
     }
 }

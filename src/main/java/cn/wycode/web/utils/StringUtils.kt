@@ -3,11 +3,12 @@ package cn.wycode.web.utils
 import kotlin.random.Random
 
 
-fun randomString(length: Int): String {
+fun randomString(length: Int, includeAlphabet: Boolean = true): String {
+    val radix = if (includeAlphabet) 36 else 10
     val sb = StringBuilder(length)
     val random = Random(System.currentTimeMillis())
     repeat(length) {
-        sb.append(random.nextInt(36).toString(36))
+        sb.append(random.nextInt(radix).toString(radix))
     }
     return sb.toString()
 }

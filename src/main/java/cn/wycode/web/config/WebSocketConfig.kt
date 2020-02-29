@@ -1,7 +1,9 @@
 package cn.wycode.web.config
 
+import cn.wycode.web.entity.ChatUser
 import cn.wycode.web.service.ADMIN_PASSCODE
 import cn.wycode.web.service.ChatService
+import cn.wycode.web.service.MAX_USER_NUM
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
@@ -41,13 +43,19 @@ class WebSocketConfig(val chatService: ChatService,val taskScheduler: TaskSchedu
                 if (StompCommand.CONNECT == accessor.command) {
                     val code = accessor.getNativeHeader("code")
                     if (code != null && code.size > 0) {
-                        if (code[0] == ADMIN_PASSCODE) {
+                        if (code[0] == ADMIN_PASSCODE) { //超级用户
                             accessor.sessionAttributes!!["error"] = chatService.code
-                        } else if (code[0] == chatService.code) {
-                            if (chatService.usersPool.size > 0) {
-                                val user = chatService.usersPool.removeAt(0)
-                                chatService.users.add(user)
+                        } else if (code[0] == chatService.code) { //合法用户
+                            val id = accessor.getNativeHeader("id")
+                            if (id != null && id.size > 0 && id[0].toInt() > 0) { //断线重连
+                                val user = ChatUser(id[0].toInt())
                                 accessor.user = user
+                                chatService.users.add(user)
+                            } else if (chatService.users.size < MAX_USER_NUM) { //新用户
+                                val user = ChatUser(chatService.userNum)
+                                accessor.user = user
+                                chatService.users.add(user)
+                                chatService.userNum += 1
                             } else {
                                 accessor.sessionAttributes!!["error"] = "人数已满！"
                             }
@@ -61,16 +69,9 @@ class WebSocketConfig(val chatService: ChatService,val taskScheduler: TaskSchedu
 
                 } else if (StompCommand.DISCONNECT == accessor.command && accessor.user != null) {
                     val id = accessor.user!!.name.toInt()
-                    var index = -1
-                    for ((i, user) in chatService.users.withIndex()) {
-                        if (user.id == id) {
-                            index = i
-                            break
-                        }
-                    }
-                    if (index >= 0) {
-                        chatService.sendSystemMessage(201, id.toString())
-                        chatService.usersPool.add(chatService.users.removeAt(index))
+                    if (id >= 0) {
+                        if (chatService.users.remove(ChatUser(id)))
+                            chatService.sendSystemMessage(201, id.toString())
                     }
                 }
                 return message
