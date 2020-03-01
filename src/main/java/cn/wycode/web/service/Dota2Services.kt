@@ -1,6 +1,6 @@
 package cn.wycode.web.service
 
-import cn.wycode.web.service.impl.DotaMatchDate
+import cn.wycode.web.service.impl.DotaScheduleDate
 import cn.wycode.web.service.impl.DotaRecentMatch
 import cn.wycode.web.service.impl.DotaTeam
 
@@ -15,7 +15,7 @@ interface DotaLeaderBoardCrawler {
     fun getTeamScores(): ArrayList<DotaTeam>
 }
 
-interface DotaMatchCrawler {
+interface DotaScheduleCrawler {
     fun start()
-    fun getResult(): ArrayList<DotaMatchDate>
+    fun getResult(): ArrayList<DotaScheduleDate>
 }

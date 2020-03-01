@@ -23,28 +23,16 @@ class WebApplication(val chatService: ChatService,
                      val dotaNewsCrawler: DotaNewsCrawler,
                      val mailService: MailService,
                      val taskScheduler: TaskScheduler,
-                     val dotaMatchCrawler: DotaMatchCrawler) : CommandLineRunner {
+                     val dotaScheduleCrawler: DotaScheduleCrawler) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
         chatService.messageTemplate = messageTemplate
         taskScheduler.scheduleAtFixedRate({ chatService.generateCode() }, 1000L * 60 * GEN_CODE_TIME_IN_MINUTES)
 
         if (!DEV) {
-            try{
-                dotaMatchCrawler.start()
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-            try{
-                leaderBoardCrawler.start()
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
-            try{
-                dotaNewsCrawler.start()
-            }catch (e: Exception){
-                e.printStackTrace()
-            }
+            dotaScheduleCrawler.start()
+            leaderBoardCrawler.start()
+            dotaNewsCrawler.start()
             val timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
             mailService.sendSimpleMail("wangyu@wycode.cn",
                     "API服务通知",
@@ -52,7 +40,7 @@ class WebApplication(val chatService: ChatService,
                             "时间：" + timeFormatter.format(LocalDateTime.now()) + "\n" +
                             "热门赛事：" + leaderBoardCrawler.getRecentMatch().size + "\n" +
                             "TI10队伍积分：" + leaderBoardCrawler.getTeamScores().size + "\n" +
-                            "最近赛事：" + dotaMatchCrawler.getResult().size + "\n"
+                            "最近赛事：" + dotaScheduleCrawler.getResult().size + "\n"
             )
         }
     }

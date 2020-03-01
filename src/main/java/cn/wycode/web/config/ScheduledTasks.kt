@@ -1,7 +1,7 @@
 package cn.wycode.web.config
 
 import cn.wycode.web.service.DotaLeaderBoardCrawler
-import cn.wycode.web.service.DotaMatchCrawler
+import cn.wycode.web.service.DotaScheduleCrawler
 import cn.wycode.web.service.DotaNewsCrawler
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration
@@ -13,7 +13,7 @@ import java.util.*
 @EnableScheduling
 @Configuration
 class ScheduledTasks(val newsCrawler: DotaNewsCrawler,
-                     val matchCrawler: DotaMatchCrawler,
+                     val scheduleCrawler: DotaScheduleCrawler,
                      val leaderBoardCrawler: DotaLeaderBoardCrawler) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -25,7 +25,7 @@ class ScheduledTasks(val newsCrawler: DotaNewsCrawler,
     @Scheduled(cron = "0 58 2 * * ? ") //每天2点58
     fun crawlDaily() {
         logger.info(dateFormat.format(Date()))
-        matchCrawler.start()
+        scheduleCrawler.start()
         leaderBoardCrawler.start()
         newsCrawler.start()
     }

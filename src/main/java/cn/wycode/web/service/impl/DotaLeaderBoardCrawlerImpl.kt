@@ -39,18 +39,30 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
 
     override fun start() {
         logger.info("start crawl dota recently matches-->" + timeFormatter.format(LocalDateTime.now()))
-        val matchesString = restTemplate.getForObject<String>("http://www.vpgame.com/schedule/sha/dota2/pro/webservice/league/list/all/v4?game_type=dota&t=" + Date().time)
-        if (!StringUtils.isEmpty(matchesString)) processMatches(matchesString!!)
+        val matchesString = try {
+            restTemplate.getForObject<String>("http://www.vpgame.com/schedule/sha/dota2/pro/webservice/league/list/all/v4?game_type=dota&t=" + Date().time)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (matchesString is String && matchesString.length > 0) processMatches(matchesString)
 
         logger.info("start crawl dota team scores-->" + timeFormatter.format(LocalDateTime.now()))
-        val teamsString = restTemplate.getForObject<String>("https://dataservice-sec.vpgame.com/dota2/pro/webservice/ti10/team/list")
-        if (!StringUtils.isEmpty(teamsString)) processTeams(teamsString!!)
+        val teamsString = try {
+            restTemplate.getForObject<String>("https://dataservice-sec.vpgame.com/dota2/pro/webservice/ti10/team/list")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (teamsString is String && teamsString.length > 0) processTeams(teamsString)
 
         val url = "http://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/v0001?division=china"
-        val response = restTemplate.getForObject(url, String::class.java)
-        if (!StringUtils.isEmpty(response) && response!!.contains("leaderboard")) {
+        val response = try {
+            restTemplate.getForObject(url, String::class.java)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        if (response is String && response.contains("leaderboard")) {
             val leaderBoard = objectMapper.readValue<DotaLeaderBoard>(response, DotaLeaderBoard::class.java)
-            leaderBoard.leaderboard = leaderBoard.leaderboard.subList(0,1000)
+            leaderBoard.leaderboard = leaderBoard.leaderboard.subList(0, 1000)
             Files.copy(objectMapper.writeValueAsString(leaderBoard).byteInputStream(), path.resolve("leaderboard.json"), StandardCopyOption.REPLACE_EXISTING)
             logger.info("save leaderboard success!")
         }
@@ -64,9 +76,9 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
             val teamNode = node.get("team")
 
             val name: String? = teamNode.get("name").asText("")
-            val logo: String?= teamNode.get("logo").asText("")
-            val nation: String?= teamNode.get("nation").asText("")
-            val rank: String?= node.get("rank").asText("")
+            val logo: String? = teamNode.get("logo").asText("")
+            val nation: String? = teamNode.get("nation").asText("")
+            val rank: String? = node.get("rank").asText("")
             val integral: String? = node.get("integral").asText("")
 
             val team = DotaTeam(name, logo, nation, rank, integral)
@@ -82,9 +94,9 @@ class DotaLeaderBoardCrawlerImpl(restTemplateBuilder: RestTemplateBuilder, val o
         val list = response.get("data").get("list") as ArrayNode
         for (node in list) {
             val league_name: String? = node.get("league_name").asText("")
-            val start_time: String? = node.get("start_time").asText("").replace('-','/').substring(5,10)
+            val start_time: String? = node.get("start_time").asText("").replace('-', '/').substring(5, 10)
             val location: String? = node.get("location").asText("")
-            val end_time: String? = node.get("end_time").asText("").replace('-','/').substring(5,10)
+            val end_time: String? = node.get("end_time").asText("").replace('-', '/').substring(5, 10)
             val prize_poll: String? = node.get("prize_poll").asText("")
             val organizer: String? = node.get("organizer").asText("")
             val league_level: String? = node.get("league_level").asText("")
@@ -121,9 +133,9 @@ data class DotaRecentMatch(
 )
 
 data class DotaTeam(
-    var name: String?,
-    var logo: String?,
-    var nation: String?,
-    var rank: String?,
-    var integral: String?
+        var name: String?,
+        var logo: String?,
+        var nation: String?,
+        var rank: String?,
+        var integral: String?
 )

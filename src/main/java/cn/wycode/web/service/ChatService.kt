@@ -30,7 +30,7 @@ class ChatService {
     val messages = ArrayList<ChatMessage>()
 
     fun generateCode() {
-        this.code = randomString(16)
+        this.code = randomString(4, false)
         logger.info("${Date().toLocaleString()}: $code")
         this.sendSystemMessage(100, this.code)
         removeOutdatedMessage()

@@ -6,8 +6,8 @@ import cn.wycode.web.repository.HeroDetailRepository
 import cn.wycode.web.repository.HeroRepository
 import cn.wycode.web.repository.VersionRepository
 import cn.wycode.web.service.DotaLeaderBoardCrawler
-import cn.wycode.web.service.DotaMatchCrawler
-import cn.wycode.web.service.impl.DotaMatchDate
+import cn.wycode.web.service.DotaScheduleCrawler
+import cn.wycode.web.service.impl.DotaScheduleDate
 import cn.wycode.web.service.impl.DotaRecentMatch
 import cn.wycode.web.service.impl.DotaTeam
 import io.swagger.annotations.Api
@@ -25,7 +25,7 @@ class DotaController(val heroRepository: HeroRepository,
                      val versionRepository: VersionRepository,
                      val itemRepository: DotaItemRepository,
                      val dotaLeaderBoardCrawler: DotaLeaderBoardCrawler,
-                     val dotaMatchCrawler: DotaMatchCrawler) {
+                     val dotaScheduleCrawler: DotaScheduleCrawler) {
 
     @ApiOperation(value = "获取数据库版本")
     @RequestMapping(method = [RequestMethod.GET], path = ["/version"])
@@ -64,8 +64,8 @@ class DotaController(val heroRepository: HeroRepository,
 
     @ApiOperation(value = "获取赛事")
     @RequestMapping(method = [RequestMethod.GET], path = ["/matches"])
-    fun matches(): JsonResult<List<DotaMatchDate>> {
-        return JsonResult.data(dotaMatchCrawler.getResult())
+    fun matches(): JsonResult<List<DotaScheduleDate>> {
+        return JsonResult.data(dotaScheduleCrawler.getResult())
     }
 
     @ApiOperation(value = "获取热门赛事")
