@@ -55,6 +55,8 @@ fun main(args: Array<String>) {
 fun initArgument(args: Array<String>) {
     val isDev = args.isNotEmpty() && "dev" == args[0]
     DEV = isDev
+    val env = if (isDev) "DEV" else "PROD"
+    println("service started as $env")
     ALI_LOG_ENDPOINT = if (isDev) ALI_LOG_ENDPOINT_EXTERNAL else ALI_LOG_ENDPOINT_INTERNAL
 }
 

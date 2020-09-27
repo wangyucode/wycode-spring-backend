@@ -6,19 +6,6 @@ import org.springframework.format.annotation.DateTimeFormat
 import java.security.Principal
 import java.util.*
 
-
-data class CommonMessage<T>(val data: T?, val error: String?) {
-    companion object {
-        fun <T> success(data: T): CommonMessage<T> {
-            return CommonMessage(data, null)
-        }
-
-        fun fail(error: String): CommonMessage<Nothing> {
-            return CommonMessage(null, error)
-        }
-    }
-}
-
 class ChatUser(val id: Int) : Principal {
 
     override fun getName(): String {

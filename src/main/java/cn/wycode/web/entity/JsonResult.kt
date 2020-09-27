@@ -13,3 +13,16 @@ data class JsonResult<T> private constructor(val data: T? = null, val success: B
     }
 }
 
+
+data class CommonMessage<T>(val data: T?, val error: String?) {
+    companion object {
+        fun <T> success(data: T): CommonMessage<T> {
+            return CommonMessage(data, null)
+        }
+
+        fun fail(error: String): CommonMessage<Nothing> {
+            return CommonMessage(null, error)
+        }
+    }
+}
+
