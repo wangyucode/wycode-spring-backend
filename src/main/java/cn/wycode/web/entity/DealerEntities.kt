@@ -19,4 +19,4 @@ data class Room(val id: String) {
 
 data class UndercoverCard(val C: String, val U: String)
 
-data class UserWord(var word: String = "", var first: Int = 0, var lastRoleTime: Long = 0)
+data class UserWord(var word: String = "", var first: Int = 0, var u: Int = 0, var c: Int = 0, var b: Int = 0, var lastRoleTime: Long = 0)

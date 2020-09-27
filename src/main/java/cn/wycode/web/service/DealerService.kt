@@ -98,6 +98,9 @@ class DealerService(restTemplateBuilder: RestTemplateBuilder) {
         if (room == null) return userWord
         val notBlanks = room.users.filter { it.role != "B" }
         userWord.first = notBlanks[random.nextInt(notBlanks.size)].id
+        userWord.u = room.users.filter { it.role == "U" }.size
+        userWord.c = room.users.filter { it.role == "C" }.size
+        userWord.b = room.users.size - notBlanks.size
         userWord.lastRoleTime = room.lastRoleTime
         val user = room.users.find { it.id == userId }
         if (user != null) userWord.word = user.word
