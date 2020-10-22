@@ -1,8 +1,8 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.CommonMessage
-import cn.wycode.web.entity.Room
 import cn.wycode.web.entity.UserWord
+import cn.wycode.web.entity.Users
 import cn.wycode.web.service.DealerService
 import cn.wycode.web.service.MAX_ROOM_COUNT
 import cn.wycode.web.service.MailService
@@ -57,6 +57,7 @@ class DealerController(private val dealerService: DealerService, private val mai
         val room = dealerService.rooms[roomId]
         return when {
             room == null -> 0
+            room.status != 0 -> room.status
             room.lastUserTime > userUpdateTime -> 1
             room.lastRoleTime > roleUpdateTime -> 2
             else -> 0
@@ -64,17 +65,19 @@ class DealerController(private val dealerService: DealerService, private val mai
     }
 
     @GetMapping("/users")
-    fun users(@RequestParam id: String): Room? {
-        return dealerService.rooms[id]
+    fun users(@RequestParam id: String): Users? {
+        val room = dealerService.rooms[id]
+        return if (room != null) {
+            Users(room.users, room.lastUserTime)
+        } else {
+            null
+        }
     }
 
-    /**
-     * roles: role-count,role-count
-     * example: 1-1,2-1,3-5
-     */
+    // TODO 通过type来做狼人杀，谁是卧底需要分配词语，狼人杀不需要。
     @GetMapping("/start")
-    fun start(@RequestParam id: String, @RequestParam roles: String) {
-        dealerService.assignRoles(id, roles)
+    fun start(@RequestParam id: String, @RequestParam type: Int, @RequestParam setting: String) {
+        dealerService.assignRoles(id, setting)
     }
 
     @GetMapping("/word")

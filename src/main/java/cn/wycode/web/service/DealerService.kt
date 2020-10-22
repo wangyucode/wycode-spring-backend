@@ -60,34 +60,38 @@ class DealerService(restTemplateBuilder: RestTemplateBuilder) {
     }
 
     /**
-     * roles: type-count,type-count
-     * 'U': undercover
-     * 'C': citizen
+     * 角色类型：
+     * C -> 平民
+     * U -> 卧底
+     * B -> 白板
      */
-    fun assignRoles(roomId: String, cardsSetting: String) {
+    fun assignRoles(roomId: String, roleSetting: String) {
         val room = rooms[roomId] ?: return
+        // TODO 查库获取词语，如果是狼人杀则无需查询词语
         val undercoverRoles = restTemplate.getForObject<Array<UndercoverCard>?>("https://wycode.cn/upload/undercover.json")
         if (undercoverRoles == null || undercoverRoles.isEmpty()) return
         val undercoverRole = undercoverRoles[random.nextInt(undercoverRoles.size)]
         logger.info(undercoverRoles.toString())
-        val roles = ArrayList<String>()
-        val cards = cardsSetting.split(',')
-        for (card in cards) {
-            val cardNumber = card.split('-')
-            repeat(cardNumber[1].toInt()) {
-                roles.add(cardNumber[0])
+
+        val cards = ArrayList<String>() //身份卡
+        val roles = roleSetting.split(',')
+        for (role in roles) {
+            val cardAndCount = role.split('-')
+            repeat(cardAndCount[1].toInt()) { //重复添加卡片个数
+                cards.add(cardAndCount[0]) //角色名称
             }
         }
 
         for (user in room.users) {
-            val index = random.nextInt(roles.size)
-            user.role = roles[index]
+            val index = random.nextInt(cards.size)
+            user.role = cards[index]
+            cards.removeAt(index)
+            // TODO 适配狼人杀
             when (user.role) {
                 "C" -> user.word = undercoverRole.C
                 "U" -> user.word = undercoverRole.U
                 "B" -> user.word = "白板"
             }
-            roles.removeAt(index)
         }
         room.lastRoleTime = System.currentTimeMillis()
     }
@@ -113,6 +117,24 @@ class DealerService(restTemplateBuilder: RestTemplateBuilder) {
         if (user != null) {
             user.status = -1
             room.lastUserTime = System.currentTimeMillis()
+
+            checkGameOver(roomId)
+        }
+    }
+
+    private fun checkGameOver(roomId: String) {
+        val room = rooms[roomId]!!
+
+        val notOutPlayer = room.users.filter { it.status != -1 }
+
+        val notOutUnderCovers = notOutPlayer.filter { it.role == "U" }
+        val notOutCivilian = notOutPlayer.filter { it.role == "C" }
+        val notOutBlank = notOutPlayer.filter { it.role == "B" }
+
+        if (notOutCivilian.size + notOutBlank.size <= notOutUnderCovers.size) {
+            room.status = 3
+        } else if (notOutUnderCovers.isEmpty()) {
+            room.status = 4
         }
     }
 
