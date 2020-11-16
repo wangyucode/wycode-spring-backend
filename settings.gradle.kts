@@ -1,1 +1,1 @@
-rootProject.name = "api"
+rootProject.name = "wycode-spring-backend"

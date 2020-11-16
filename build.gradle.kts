@@ -27,10 +27,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("com.h2database:h2")
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
-
     implementation("io.springfox:springfox-swagger2:2.9.0") //Swagger JSON generate
     implementation("us.codecraft:webmagic-extension:0.7.3") {
         exclude(group = "redis.clients", module = "jedis")
@@ -39,10 +35,6 @@ dependencies {
     implementation("com.baidu.aip:java-sdk:4.6.1")
     implementation("com.aliyun.oss:aliyun-sdk-oss:2.8.3")
     implementation("com.aliyun.openservices:aliyun-log:0.6.32")
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {
