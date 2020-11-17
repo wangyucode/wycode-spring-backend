@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <title>API docs</title>
+    <meta name="description" content="王郁的个人主页"/>
+    <meta name="keywords" content="王郁,Android,全栈工程师">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="shortcut icon" href="https://wycode.cn/img/logo_48.png"/>
+    <link href="https://cdn.bootcss.com/swagger-ui/3.22.1/swagger-ui.css" rel="stylesheet">
+</head>
+<body>
+<div id="swagger-ui"></div>
+
+<script src="https://cdn.bootcss.com/swagger-ui/3.22.1/swagger-ui-bundle.js"></script>
+<script>
+    SwaggerUIBundle({
+        url: "/web/v2/api-docs",
+        dom_id: '#swagger-ui',
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+    });
+</script>
+</body>
+</html>
