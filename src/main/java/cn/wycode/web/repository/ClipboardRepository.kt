@@ -1,21 +1,17 @@
 package cn.wycode.web.repository
 
 import cn.wycode.web.entity.Clipboard
-import cn.wycode.web.entity.ClipboardSuggest
 import cn.wycode.web.entity.WXClipboard
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface ClipboardSuggestRepository : CrudRepository<ClipboardSuggest, Long>
-
+@Deprecated("can be remove after data migrated")
+interface WXClipboardRepository : CrudRepository<WXClipboard, String>
 
 @Repository
-interface WXClipboardRepository : CrudRepository<WXClipboard, String> {
-    fun findByKey(key: String): WXClipboard?
-    fun findByOpenid(openid: String): WXClipboard?
+interface ClipboardRepository : MongoRepository<Clipboard, String> {
+    fun findByKey(key: String): Clipboard?
+    fun findByOpenid(openid: String): Clipboard?
 }
-
-@Repository
-interface ClipboardRepository : MongoRepository<Clipboard, String>

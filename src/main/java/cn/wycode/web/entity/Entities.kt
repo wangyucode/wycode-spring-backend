@@ -5,14 +5,6 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-data class ClipboardSuggest(var createDate: Date = Date(), var content: String = "", var contact: String? = "") {
-    @Id
-    @GeneratedValue(generator = "seq_clipboard_suggest")
-    @SequenceGenerator(name = "seq_clipboard_suggest", sequenceName = "SEQ_CLIPBOARD_SUGGEST", allocationSize = 1, initialValue = 50)
-    val id: Long? = null
-}
-
-@Entity
 data class FishBaike(var type: String = "", var title: String = "", var detail: String = "", var imageName: String = "", var createDate: Date = Date()) {
     @Id
     @GeneratedValue(generator = "seq_fish_baike")
@@ -104,6 +96,7 @@ data class FishSuggest(var createDate: Date = Date(), var content: String = "", 
 }
 
 @Entity
+@Deprecated("can be remove after data migrated")
 data class WXClipboard(@Id val id: String = "", @JsonIgnore var openid: String = "", @Column(length = 2000) var content: String = "") {
     var key: String = ""
     var tips: String = ""
