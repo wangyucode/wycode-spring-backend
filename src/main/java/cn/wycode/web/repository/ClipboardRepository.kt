@@ -1,7 +1,9 @@
 package cn.wycode.web.repository
 
+import cn.wycode.web.entity.Clipboard
 import cn.wycode.web.entity.ClipboardSuggest
 import cn.wycode.web.entity.WXClipboard
+import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
@@ -14,3 +16,6 @@ interface WXClipboardRepository : CrudRepository<WXClipboard, String> {
     fun findByKey(key: String): WXClipboard?
     fun findByOpenid(openid: String): WXClipboard?
 }
+
+@Repository
+interface ClipboardRepository : MongoRepository<Clipboard, String>
