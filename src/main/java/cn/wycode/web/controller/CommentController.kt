@@ -65,7 +65,7 @@ class CommentController(
         var contentText = content
         //文字及图片评论内容限制
         if (type == 0 || type == 2) {
-            if (StringUtils.hasLength(contentText)) return JsonResult.error("内容不能为空")
+            if (!StringUtils.hasLength(contentText)) return JsonResult.error("内容不能为空")
             if (contentText!!.length > 1023) return JsonResult.error("内容不能超过1000个字")
         }
 
