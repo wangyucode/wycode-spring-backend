@@ -2,9 +2,12 @@ package cn.wycode.web.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
 import javax.persistence.*
 
+@Deprecated("delete after migrate to mongodb")
+@Document
 @Entity
 data class Comment(
         @Id
@@ -32,6 +35,7 @@ data class Comment(
         val createTime: Date = Date(),
         var likeCount: Int = 0)
 
+@Document
 @Entity
 data class CommentApp(
         @Id
@@ -40,6 +44,7 @@ data class CommentApp(
         val accessKey: String = ""
 )
 
+@Document
 @Entity
 data class ThirdUser(
         @Id

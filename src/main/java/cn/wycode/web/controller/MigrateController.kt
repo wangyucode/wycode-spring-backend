@@ -36,5 +36,8 @@ class MigrateController(
             }
             clipboardRepository.saveAll(mongoClipboards)
         }
+        if(script == "comment"){
+
+        }
     }
 }
