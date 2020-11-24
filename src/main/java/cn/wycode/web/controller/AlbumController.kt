@@ -40,8 +40,8 @@ class AlbumController(val sessionService: WXSessionService,
     fun getSession(@RequestParam jsCode: String): JsonResult<String> {
         val session = sessionService.getWXSessionForAlbum(jsCode)
         if (session != null &&
-                !StringUtils.isEmpty(session.session_key) &&
-                !StringUtils.isEmpty(session.openid)) {
+                !StringUtils.hasLength(session.session_key) &&
+                !StringUtils.hasLength(session.openid)) {
             log.info(session.toString())
             val accessKey = EncryptionUtil.getHash(session.session_key, EncryptionUtil.MD5)
             var user = userRepository.findByOpenId(session.openid!!)

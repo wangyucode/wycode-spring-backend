@@ -1,13 +1,13 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.ALI_COMMENT_BUCKET_NAME
-import cn.wycode.web.entity.Comment
 import cn.wycode.web.entity.GithubToken
 import cn.wycode.web.entity.JsonResult
-import cn.wycode.web.entity.ThirdUser
-import cn.wycode.web.repository.CommentAppRepository
-import cn.wycode.web.repository.CommentRepository
-import cn.wycode.web.repository.ThirdUserRepository
+import cn.wycode.web.entity.MongoComment
+import cn.wycode.web.entity.MongoThirdUser
+import cn.wycode.web.repository.MongoCommentAppRepository
+import cn.wycode.web.repository.MongoCommentRepository
+import cn.wycode.web.repository.MongoThirdUserRepository
 import cn.wycode.web.service.MailService
 import cn.wycode.web.service.OssService
 import cn.wycode.web.service.StorageService
@@ -32,9 +32,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/public/comment")
 @Api(value = "Comment", description = "Comment", tags = ["Comment"])
 class CommentController(
-        val commentAppRepository: CommentAppRepository,
-        val commentRepository: CommentRepository,
-        val thirdUserRepository: ThirdUserRepository,
+        val commentAppRepository: MongoCommentAppRepository,
+        val commentRepository: MongoCommentRepository,
+        val thirdUserRepository: MongoThirdUserRepository,
         val storageService: StorageService,
         val ossService: OssService,
         val restTemplateBuilder: RestTemplateBuilder,
@@ -60,12 +60,12 @@ class CommentController(
                    @RequestParam(required = false) fromUserName: String?,
                    @RequestParam(required = false) fromUserIcon: String?,
                    @RequestParam(required = false) toCommentId: Long?
-    ): JsonResult<Comment> {
+    ): JsonResult<MongoComment> {
         if (type < 0 || type > 2) return JsonResult.error("参数错误")
         var contentText = content
         //文字及图片评论内容限制
         if (type == 0 || type == 2) {
-            if (StringUtils.isEmpty(contentText)) return JsonResult.error("内容不能为空")
+            if (StringUtils.hasLength(contentText)) return JsonResult.error("内容不能为空")
             if (contentText!!.length > 1023) return JsonResult.error("内容不能超过1000个字")
         }
 
@@ -82,7 +82,7 @@ class CommentController(
                     ?: return JsonResult.error("评论失败，请重试")
         }
         //处理回复
-        var toComment: Comment? = null
+        var toComment: MongoComment? = null
         if (toCommentId != null && toCommentId > 0) {
             toComment = commentRepository.findById(toCommentId).orElse(null) ?: return JsonResult.error("被回复的评论不存在")
             if (toComment.topicId != topicId) return JsonResult.error("不能跨主题回复")
@@ -94,9 +94,9 @@ class CommentController(
             }
         }
         //需要新增的comment
-        val comment = Comment(
+        val comment = MongoComment(
                 topicId = topicId,
-                app = app,
+                app = app.name,
                 content = contentText,
                 type = type,
                 fromUserId = fromUserId,
@@ -127,10 +127,10 @@ class CommentController(
                      @RequestParam appName: String,
                      @RequestParam company: String,
                      @RequestParam userJson: String,
-                     @RequestParam id: String): JsonResult<ThirdUser> {
+                     @RequestParam id: String): JsonResult<MongoThirdUser> {
         val app = commentAppRepository.findByNameAndAccessKey(appName, accessKey)
                 ?: return JsonResult.error("app不存在，或key错误")
-        val user = ThirdUser(id, company, userJson, app)
+        val user = MongoThirdUser(id, company, userJson, app.name)
         return JsonResult.data(thirdUserRepository.save(user))
     }
 
@@ -138,11 +138,11 @@ class CommentController(
     @RequestMapping(path = ["/getComments"], method = [RequestMethod.GET])
     fun getComments(@RequestParam accessKey: String,
                     @RequestParam appName: String,
-                    @RequestParam topicId: String): JsonResult<List<Comment>> {
+                    @RequestParam topicId: String): JsonResult<List<MongoComment>> {
         commentAppRepository.findByNameAndAccessKey(appName, accessKey)
                 ?: return JsonResult.error("app不存在，或key错误")
 
-        return JsonResult.data(commentRepository.findAllByApp_NameAndTopicIdAndDeleted(appName, topicId))
+        return JsonResult.data(commentRepository.findAllByAppAndTopicIdAndDeleted(appName, topicId))
     }
 
     @ApiOperation(value = "获取github Token")

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository
 interface WXClipboardRepository : CrudRepository<WXClipboard, String>
 
 @Repository
-interface ClipboardRepository : MongoRepository<Clipboard, String> {
+interface ClipboardRepository : CrudRepository<Clipboard, String> {
     fun findByKey(key: String): Clipboard?
     fun findByOpenid(openid: String): Clipboard?
 }

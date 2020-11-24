@@ -80,12 +80,12 @@ class DotaNewsProcessor(private val objectMapper: ObjectMapper) : PageProcessor 
 
     private fun appendNode(details: ArrayList<DotaNewsNode>, node: Selectable) {
         val img = node.xpath("//img/@src").get()
-        if (!StringUtils.isEmpty(img)) {
+        if (!StringUtils.hasLength(img)) {
             val newsNode = DotaNewsNode("img", img)
             details.add(newsNode)
         } else {
             val text = node.xpath("/tidyText()").get().trim()
-            if (StringUtils.isEmpty(text)){
+            if (StringUtils.hasLength(text)){
                 val newsNode = DotaNewsNode("br", null)
                 details.add(newsNode)
             }else{
