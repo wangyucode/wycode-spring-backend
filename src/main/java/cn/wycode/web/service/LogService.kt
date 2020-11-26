@@ -113,6 +113,9 @@ class LogService(val logClient: Client) {
                         }
                         appUse.app = "宝宝圈"
                     }
+                    "deal" -> {
+                        appUse.app = "发牌员"
+                    }
                     else -> {
                         appUse.app = "其它"
                     }
