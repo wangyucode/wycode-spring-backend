@@ -1,9 +1,6 @@
 package cn.wycode.web.controller
 
-import cn.wycode.web.entity.Clipboard
-import cn.wycode.web.entity.MongoComment
-import cn.wycode.web.entity.MongoCommentApp
-import cn.wycode.web.entity.MongoThirdUser
+import cn.wycode.web.entity.*
 import cn.wycode.web.repository.*
 import org.apache.commons.logging.LogFactory
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,79 +11,108 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/public/migrate")
 class MigrateController(
-        val clipboardRepository: ClipboardRepository,
-        val wxClipboardRepository: WXClipboardRepository,
-        val commentAppRepository: CommentAppRepository,
-        val mongoCommentAppRepository: MongoCommentAppRepository,
-        val commentRepository: CommentRepository,
-        val mongoCommentRepository: MongoCommentRepository,
-        val thirdUserRepository: ThirdUserRepository,
-        val mongoThirdUserRepository: MongoThirdUserRepository
+        val dotaVersionRepository: VersionRepository,
+        val mongoDotaVersionRepository: MongoVersionRepository,
+        val dotaHeroRepository: HeroRepository,
+        val mongoHeroRepository: MongoHeroRepository,
+        val dotaHeroDetailRepository: HeroDetailRepository,
+        val mongoHeroDetailRepository: MongoHeroDetailRepository,
+        val dotaItemRepository: DotaItemRepository,
+        val mongoDotaItemRepository: MongoDotaItemRepository
 ) {
 
     private val logger = LogFactory.getLog(this.javaClass)
 
     @GetMapping("/run")
     fun run(@RequestParam script: String) {
-        // TODO 11/21 copy all clipboard to mongoDB
-        if (script == "clipboard") {
-            val h2Clipboards = wxClipboardRepository.findAll()
-            val mongoClipboards = h2Clipboards.map {
-                Clipboard(it.id).apply {
-                    content = it.content
-                    openid = it.openid
-                    key = it.key
-                    createDate = it.createDate
-                    lastUpdate = it.createDate
-                    tips = it.tips
-                    logger.info(this)
-                }
-            }
-            clipboardRepository.saveAll(mongoClipboards)
-        }
-        if (script == "comment") {
-            val h2Comments = commentRepository.findAll()
-            val mongoComments = h2Comments.map {
-                MongoComment(
-                        it.id.toString(),
-                        it.topicId,
-                        it.app.name,
-                        it.content,
-                        it.type,
-                        it.fromUserId,
-                        it.fromUserName,
-                        it.fromUserIcon,
-                        it.toUserId,
-                        it.toUserName,
-                        it.toUserIcon,
-                        it.toContent,
-                        it.toId.toString(),
-                        it.deleted,
-                        it.createTime,
-                        it.likeCount
-                )
-            }
-            mongoCommentRepository.saveAll(mongoComments)
-
-            val h2CommentApps = commentAppRepository.findAll()
-            val mongoCommentApps = h2CommentApps.map {
-                MongoCommentApp(
-                        it.name,
-                        it.accessKey
-                )
-            }
-            mongoCommentAppRepository.saveAll(mongoCommentApps)
-
-            val h2ThirdUsers = thirdUserRepository.findAll()
-            val mongoThirdUsers = h2ThirdUsers.map {
-                MongoThirdUser(
+        if (script == "dota") {
+            val h2Version = dotaVersionRepository.findAll()
+            val mongoVersion = h2Version.map {
+                MongoDotaVersion(
                         it.id,
-                        it.company,
-                        it.userJson,
-                        it.app.name
+                        it.version,
+                        it.date
                 )
             }
-            mongoThirdUserRepository.saveAll(mongoThirdUsers)
+            mongoDotaVersionRepository.saveAll(mongoVersion)
+
+            val h2Heroes = dotaHeroRepository.findAll()
+            val mongoHeroes = h2Heroes.map {
+                MongoDota2Hero(
+                        it.name,
+                        it.imageUrl,
+                        it.type,
+                        it.icon
+                )
+            }
+            mongoHeroRepository.saveAll(mongoHeroes)
+
+            val h2HeroDetail = dotaHeroDetailRepository.findAll()
+            val mongoDetail = h2HeroDetail.map { detail ->
+
+                val abilities = detail.abilities.map {
+                    MongoHeroAbility(
+                            it.name,
+                            it.heroName,
+                            it.imageUrl,
+                            it.annotation,
+                            it.description,
+                            it.magicConsumption,
+                            it.coolDown,
+                            it.tips,
+                            it.attributes,
+                            it.num
+                    )
+                }
+
+                MongoHeroDetail(
+                        detail.name,
+                        detail.attackType,
+                        detail.otherName,
+                        detail.story,
+                        detail.strengthStart,
+                        detail.strengthGrow,
+                        detail.agilityStart,
+                        detail.agilityGrow,
+                        detail.intelligenceStart,
+                        detail.intelligenceGrow,
+                        detail.attackPower,
+                        detail.attackSpeed,
+                        detail.armor,
+                        detail.speed,
+                        detail.talent25Left,
+                        detail.talent25Right,
+                        detail.talent20Left,
+                        detail.talent20Right,
+                        detail.talent15Left,
+                        detail.talent15Right,
+                        detail.talent10Left,
+                        detail.talent10Right,
+                        abilities
+                )
+            }
+            mongoHeroDetailRepository.saveAll(mongoDetail)
+
+
+            val h2Items = dotaItemRepository.findAll()
+            val mongoItems = h2Items.map {
+                MongoDotaItem(
+                        it.key,
+                        it.type,
+                        it.cname,
+                        it.name,
+                        it.lore,
+                        it.img,
+                        it.notes,
+                        it.desc,
+                        it.cost,
+                        it.mc,
+                        it.cd,
+                        it.components,
+                        it.attrs
+                )
+            }
+            mongoDotaItemRepository.saveAll(mongoItems)
         }
     }
 }

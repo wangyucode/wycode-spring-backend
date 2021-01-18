@@ -1,14 +1,14 @@
 package cn.wycode.web.controller
 
 import cn.wycode.web.entity.*
-import cn.wycode.web.repository.DotaItemRepository
-import cn.wycode.web.repository.HeroDetailRepository
-import cn.wycode.web.repository.HeroRepository
-import cn.wycode.web.repository.VersionRepository
+import cn.wycode.web.repository.MongoDotaItemRepository
+import cn.wycode.web.repository.MongoHeroDetailRepository
+import cn.wycode.web.repository.MongoHeroRepository
+import cn.wycode.web.repository.MongoVersionRepository
 import cn.wycode.web.service.DotaLeaderBoardCrawler
 import cn.wycode.web.service.DotaScheduleCrawler
-import cn.wycode.web.service.impl.DotaScheduleDate
 import cn.wycode.web.service.impl.DotaRecentMatch
+import cn.wycode.web.service.impl.DotaScheduleDate
 import cn.wycode.web.service.impl.DotaTeam
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
@@ -20,44 +20,54 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/public/dota")
 @Api(value = "Dota", description = "Dota2", tags = ["Dota"])
-class DotaController(val heroRepository: HeroRepository,
-                     val heroDetailRepository: HeroDetailRepository,
-                     val versionRepository: VersionRepository,
-                     val itemRepository: DotaItemRepository,
+class DotaController(val heroRepository: MongoHeroRepository,
+                     val heroDetailRepository: MongoHeroDetailRepository,
+                     val versionRepository: MongoVersionRepository,
+                     val itemRepository: MongoDotaItemRepository,
                      val dotaLeaderBoardCrawler: DotaLeaderBoardCrawler,
                      val dotaScheduleCrawler: DotaScheduleCrawler) {
 
     @ApiOperation(value = "获取数据库版本")
     @RequestMapping(method = [RequestMethod.GET], path = ["/version"])
-    fun version(): JsonResult<DotaVersion> {
+    fun version(): JsonResult<MongoDotaVersion> {
         val version = versionRepository.findById(1).orElse(null)
         return JsonResult.data(version)
     }
 
     @ApiOperation(value = "获取所有英雄")
     @RequestMapping(method = [RequestMethod.GET], path = ["/heroes"])
-    fun heroes(): JsonResult<List<Dota2Hero>> {
+    fun heroes(): JsonResult<List<MongoDota2Hero>> {
         val heroes = heroRepository.findAll().toList()
         return JsonResult.data(heroes)
     }
 
     @ApiOperation(value = "获取英雄详情")
     @RequestMapping(method = [RequestMethod.GET], path = ["/heroDetail"])
-    fun heroDetail(@RequestParam heroName: String): JsonResult<HeroDetail> {
+    fun heroDetail(@RequestParam heroName: String): JsonResult<MongoHeroDetail> {
         val hero = heroDetailRepository.findById(heroName).orElse(null)
         return JsonResult.data(hero)
     }
 
     @ApiOperation(value = "获取所有物品")
     @RequestMapping(method = [RequestMethod.GET], path = ["/items"])
-    fun items(): JsonResult<List<DotaItem>> {
-        val items = itemRepository.findItemList()
-        return JsonResult.data(items)
+    fun items(): JsonResult<List<MongoDotaItem>> {
+        val items = itemRepository.findAll()
+        items.forEach {
+            it.attrs = null
+            it.components = null
+            it.desc = null
+            it.notes = null
+            it.cd = null
+            it.cost = null
+            it.lore = null
+            it.mc = null
+        }
+        return JsonResult.data(items.toList())
     }
 
     @ApiOperation(value = "获取物品详情")
     @RequestMapping(method = [RequestMethod.GET], path = ["/itemDetail"])
-    fun itemDetail(@RequestParam itemKey: String): JsonResult<DotaItem> {
+    fun itemDetail(@RequestParam itemKey: String): JsonResult<MongoDotaItem> {
         val item = itemRepository.findById(itemKey).orElse(null)
         return JsonResult.data(item)
     }
