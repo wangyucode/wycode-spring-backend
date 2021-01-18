@@ -40,7 +40,11 @@ interface MongoHeroRepository : CrudRepository<MongoDota2Hero, String>
 interface MongoVersionRepository : CrudRepository<MongoDotaVersion, Int>
 
 @Repository
-interface MongoHeroDetailRepository : CrudRepository<MongoHeroDetail, String>
+interface MongoHeroDetailRepository : CrudRepository<MongoHeroDetail, String> {
+    fun findByName(name: String): MongoHeroDetail?
+}
 
 @Repository
-interface MongoDotaItemRepository : CrudRepository<MongoDotaItem, String>
+interface MongoDotaItemRepository : CrudRepository<MongoDotaItem, String> {
+    fun findByKey(key: String): MongoDotaItem?
+}

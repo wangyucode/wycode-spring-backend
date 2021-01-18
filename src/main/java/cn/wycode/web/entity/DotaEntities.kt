@@ -215,3 +215,10 @@ data class MongoDotaItem(
         this.cost = cost
     }
 }
+
+data class DotaShortItem(val key: String,
+                         val name: String,
+                         val img: String,
+                         val cname: String,
+                         val type: String,
+                         val cost: Int?)

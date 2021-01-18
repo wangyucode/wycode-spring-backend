@@ -44,32 +44,21 @@ class DotaController(val heroRepository: MongoHeroRepository,
     @ApiOperation(value = "获取英雄详情")
     @RequestMapping(method = [RequestMethod.GET], path = ["/heroDetail"])
     fun heroDetail(@RequestParam heroName: String): JsonResult<MongoHeroDetail> {
-        val hero = heroDetailRepository.findById(heroName).orElse(null)
-        return JsonResult.data(hero)
+        return JsonResult.data(heroDetailRepository.findByName(heroName))
     }
 
     @ApiOperation(value = "获取所有物品")
     @RequestMapping(method = [RequestMethod.GET], path = ["/items"])
-    fun items(): JsonResult<List<MongoDotaItem>> {
+    fun items(): JsonResult<List<DotaShortItem>> {
         val items = itemRepository.findAll()
-        items.forEach {
-            it.attrs = null
-            it.components = null
-            it.desc = null
-            it.notes = null
-            it.cd = null
-            it.cost = null
-            it.lore = null
-            it.mc = null
-        }
-        return JsonResult.data(items.toList())
+        val shortItems = items.toList().map { DotaShortItem(it.key, it.name, it.img, it.cname, it.type, it.cost) }
+        return JsonResult.data(shortItems)
     }
 
     @ApiOperation(value = "获取物品详情")
     @RequestMapping(method = [RequestMethod.GET], path = ["/itemDetail"])
     fun itemDetail(@RequestParam itemKey: String): JsonResult<MongoDotaItem> {
-        val item = itemRepository.findById(itemKey).orElse(null)
-        return JsonResult.data(item)
+        return JsonResult.data(itemRepository.findByKey(itemKey))
     }
 
     @ApiOperation(value = "获取赛事")
