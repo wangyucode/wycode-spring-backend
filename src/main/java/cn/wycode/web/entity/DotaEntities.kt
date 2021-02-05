@@ -174,7 +174,6 @@ data class MongoHeroDetail(
 
 data class MongoHeroAbility(
         val name: String = "",
-        val heroName: String = "",
         val imageUrl: String = "",
         val annotation: String? = null,
         val description: String? = null,

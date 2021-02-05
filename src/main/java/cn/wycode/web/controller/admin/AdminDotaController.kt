@@ -38,21 +38,6 @@ class AdminDotaController(
         return JsonResult.data(detailRepository.save(detailInfo))
     }
 
-    @ApiOperation(value = "更新或新建英雄技能")
-    @RequestMapping(path = ["/ability"], method = [RequestMethod.POST])
-    fun ability(@RequestBody ability: MongoHeroAbility): JsonResult<Any> {
-        detailRepository.findById(ability.heroName).ifPresent { detail ->
-            var abilityOriginal = detail.abilities.find { it.name == ability.name }
-            if (abilityOriginal == null) {
-                (detail.abilities as ArrayList).add(ability)
-            } else {
-                abilityOriginal = ability
-            }
-            detailRepository.save(detail)
-        }
-        return JsonResult.data(null)
-    }
-
     @ApiOperation(value = "删除英雄技能")
     @RequestMapping(path = ["/deleteAbility"], method = [RequestMethod.POST])
     fun deleteAbility(@RequestParam heroName: String, @RequestParam name: String): JsonResult<Any> {
