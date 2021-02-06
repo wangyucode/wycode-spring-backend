@@ -4,7 +4,7 @@ import cn.wycode.web.entity.*
 import cn.wycode.web.repository.MongoDotaItemRepository
 import cn.wycode.web.repository.MongoHeroDetailRepository
 import cn.wycode.web.repository.MongoHeroRepository
-import cn.wycode.web.repository.MongoVersionRepository
+import cn.wycode.web.repository.WyConfigRepository
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import org.springframework.web.bind.annotation.*
@@ -14,16 +14,16 @@ import javax.transaction.Transactional
 @RequestMapping("/api/public/admin/dota")
 @Api(value = "Admin", description = "Admin", tags = ["Admin"])
 class AdminDotaController(
-        val versionRepository: MongoVersionRepository,
+        val wyConfigRepository: WyConfigRepository,
         val heroRepository: MongoHeroRepository,
         val detailRepository: MongoHeroDetailRepository,
         val itemRepository: MongoDotaItemRepository
 ) {
 
-    @ApiOperation(value = "设置版本号")
-    @RequestMapping(path = ["/version"], method = [RequestMethod.POST])
-    fun visitors(@RequestParam version: String): JsonResult<MongoDotaVersion> {
-        return JsonResult.data(versionRepository.save(MongoDotaVersion(version = version)))
+    @ApiOperation(value = "设置KeyValue")
+    @RequestMapping(path = ["/config"], method = [RequestMethod.POST])
+    fun config(@RequestParam key: String, @RequestParam value: String): JsonResult<WyConfig> {
+        return JsonResult.data(wyConfigRepository.save(WyConfig(key, value)))
     }
 
     @ApiOperation(value = "更新或新建英雄基本信息")

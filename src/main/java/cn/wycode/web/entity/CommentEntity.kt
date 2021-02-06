@@ -2,6 +2,7 @@ package cn.wycode.web.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
 import javax.persistence.Id
@@ -38,7 +39,7 @@ data class MongoComment(
 
 @Document
 data class MongoCommentApp(
-        @Id
+        @Indexed
         val name: String = "",
         @JsonIgnore
         val accessKey: String = ""
