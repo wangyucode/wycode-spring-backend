@@ -20,7 +20,6 @@ class AdminAuthFilter : Filter {
         val req = request as HttpServletRequest
         val res = response as HttpServletResponse
         val token = req.getHeader("X-Auth-Token") ?: ""
-        println(token)
         val tokenTime = tokenTime(token)
         if (tokenTime < 0) {
             res.sendError(403, "没有权限")

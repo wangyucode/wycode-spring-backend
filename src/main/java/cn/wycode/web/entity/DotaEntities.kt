@@ -86,7 +86,7 @@ data class MongoDotaItem(
         var desc: Map<String, String>? = null,
         var cost: Int? = null,
         var mc: String? = null,
-        var cd: Int? = null,
+        var cd: String? = null,
         var components: List<String>? = null,
         var attrs: Map<String, String>? = null
 ) {
