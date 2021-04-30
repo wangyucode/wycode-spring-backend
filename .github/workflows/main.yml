@@ -29,8 +29,6 @@ jobs:
         with:
           java-version: '8'
           distribution: 'adopt'
-          # The package type (jdk, jre, jdk+fx, jre+fx)
-          java-package: 'jre'
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
