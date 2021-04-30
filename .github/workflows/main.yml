@@ -48,8 +48,19 @@ jobs:
         run: |
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           rm -f ~/.gradle/caches/modules-2/gc.properties
-      - uses: actions/upload-artifact@v2
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v1
         with:
-          name: Package
-          path: build/libs
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: wangyucode/wycode-spring-backend
+          tag_with_ref: true
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v1
+        with:
+          username: www_wayne_001@163.com
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          registry: registry.cn-zhangjiakou.aliyuncs.com
+          repository: wangyucode/wycode-spring-backend
+          tag_with_ref: true
         
