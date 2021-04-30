@@ -35,5 +35,5 @@ jobs:
           # The package type (jdk, jre, jdk+fx, jre+fx)
           java-package: 'jre'
       - name: build
-        run: ./grawlew build
+        run: ./gradlew build
         
