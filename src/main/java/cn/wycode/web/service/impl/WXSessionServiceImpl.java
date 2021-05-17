@@ -18,10 +18,7 @@ public class WXSessionServiceImpl implements WXSessionService {
     private Log log = LogFactory.getLog(WXSessionServiceImpl.class);
 
     private static final String sessionUrl = "https://api.weixin.qq.com/sns/jscode2session";
-    @Value("${wycode.fish.wx-app-id}")
-    String fishAppId;
-    @Value("${wycode.fish.wx-secret}")
-    String fishSecret;
+
     @Value("${wycode.clipboard.wx-app-id}")
     String clipboardAppId;
     @Value("${wycode.clipboard.wx-secret}")
@@ -38,16 +35,6 @@ public class WXSessionServiceImpl implements WXSessionService {
     public WXSessionServiceImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
         setResponseType();
-    }
-
-    @Override
-    public WXSession getWXSession(String jsCode) {
-        String url = sessionUrl +
-                "?appid=" + fishAppId +
-                "&secret=" + fishSecret +
-                "&js_code=" + jsCode +
-                "&grant_type=" + grantType;
-        return restTemplate.getForObject(url, WXSession.class);
     }
 
     @Override
