@@ -19,28 +19,19 @@ import java.util.*
 @ServletComponentScan
 class WebApplication(val chatService: ChatService,
                      val messageTemplate: SimpMessagingTemplate,
-                     val leaderBoardCrawler: DotaLeaderBoardCrawler,
-                     val dotaNewsCrawler: DotaNewsCrawler,
                      val mailService: MailService,
-                     val taskScheduler: TaskScheduler,
-                     val dotaScheduleCrawler: DotaScheduleCrawler) : CommandLineRunner {
+                     val taskScheduler: TaskScheduler) : CommandLineRunner {
 
     override fun run(vararg args: String?) {
         chatService.messageTemplate = messageTemplate
         taskScheduler.scheduleAtFixedRate({ chatService.generateCode() }, 1000L * 60 * GEN_CODE_TIME_IN_MINUTES)
 
         if (!DEV) {
-            dotaScheduleCrawler.start()
-            leaderBoardCrawler.start()
-            dotaNewsCrawler.start()
             val timeFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss").withLocale(Locale.CHINA)
             mailService.sendSimpleMail("wangyu@wycode.cn",
                     "API服务通知",
                     "API服务已重新启动！\n" +
-                            "时间：" + timeFormatter.format(LocalDateTime.now()) + "\n" +
-                            "热门赛事：" + leaderBoardCrawler.getRecentMatch().size + "\n" +
-                            "TI10队伍积分：" + leaderBoardCrawler.getTeamScores().size + "\n" +
-                            "最近赛事：" + dotaScheduleCrawler.getResult().size + "\n"
+                            "时间：" + timeFormatter.format(LocalDateTime.now()) + "\n"
             )
         }
     }
