@@ -1,32 +1,20 @@
 package cn.wycode.web.repository
 
-import cn.wycode.web.entity.*
-import org.springframework.data.jpa.repository.Query
+import cn.wycode.web.entity.MongoDota2Hero
+import cn.wycode.web.entity.MongoDotaItem
+import cn.wycode.web.entity.MongoHeroDetail
+import cn.wycode.web.entity.WyConfig
 import org.springframework.data.repository.CrudRepository
-import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface HeroRepository : CrudRepository<Dota2Hero, String>
-
-
-@Repository
-interface VersionRepository : CrudRepository<DotaVersion, Int>
+interface MongoHeroRepository : CrudRepository<MongoDota2Hero, String>
 
 @Repository
-interface HeroDetailRepository : CrudRepository<HeroDetail, String>
+interface WyConfigRepository : CrudRepository<WyConfig, String>
 
 @Repository
-interface AbilityRepository : CrudRepository<HeroAbility, String> {
-    fun deleteAllByHeroName(name: String)
-}
-
+interface MongoHeroDetailRepository : CrudRepository<MongoHeroDetail, String>
 
 @Repository
-interface DotaItemRepository : CrudRepository<DotaItem, String> {
-    @Query("select new DotaItem(i.key,i.name,i.img,i.cname,i.type,i.cost) from DotaItem i")
-    fun findItemList(): List<DotaItem>
-
-    @Query("DELETE FROM DOTA_ITEM_COMPONENTS WHERE components = ? ", nativeQuery = true)
-    fun deleteComponents(key: String)
-}
+interface MongoDotaItemRepository : CrudRepository<MongoDotaItem, String>

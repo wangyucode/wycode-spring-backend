@@ -2,20 +2,26 @@ package cn.wycode.web.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.data.mongodb.core.index.Indexed
+import org.springframework.data.mongodb.core.mapping.Document
 import java.util.*
-import javax.persistence.*
+import javax.persistence.Id
 
-@Entity
-data class Comment(
+data class GithubToken(var access_token: String?,
+                       var scope: String?,
+                       var error_description: String?,
+                       var error: String?,
+                       var error_uri: String?,
+                       var token_type: String?)
+
+
+@Document
+data class MongoComment(
         @Id
-        @GeneratedValue(generator = "seq_comment")
-        @SequenceGenerator(name = "seq_comment", sequenceName = "SEQ_COMMENT", allocationSize = 1, initialValue = 1)
-        val id: Long = 0,
+        val id: String = "",
         @ApiModelProperty(value = "主题id")
         val topicId: String = "",
-        @ManyToOne
-        val app: CommentApp = CommentApp(),
-        @Column(length = 1023)
+        val app: String = "",
         val content: String? = null,
         @ApiModelProperty(value = "评论类型，0.文字评论，1.点赞，2.图片评论")
         val type: Int = 0,
@@ -25,36 +31,25 @@ data class Comment(
         val toUserId: String? = null,
         val toUserName: String? = null,
         val toUserIcon: String? = null,
-        @Column(length = 1023)
         val toContent: String? = null,
-        val toId: Long? = null,
+        val toId: String? = null,
         val deleted: Boolean = false,
         val createTime: Date = Date(),
         var likeCount: Int = 0)
 
-@Entity
-data class CommentApp(
-        @Id
+@Document
+data class MongoCommentApp(
+        @Indexed
         val name: String = "",
         @JsonIgnore
         val accessKey: String = ""
 )
 
-@Entity
-data class ThirdUser(
+@Document
+data class MongoThirdUser(
         @Id
         val id: String = "",
         val company: String = "",
-        @Column(length = 2047)
         val userJson: String = "",
-        @ManyToOne
-        val app: CommentApp = CommentApp()
+        val app: String = "",
 )
-
-
-data class GithubToken(var access_token: String?,
-                       var scope: String?,
-                       var error_description: String?,
-                       var error: String?,
-                       var error_uri: String?,
-                       var token_type: String?)

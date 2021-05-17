@@ -1,11 +1,9 @@
 package cn.wycode.web.controller;
 
-import cn.wycode.web.entity.ClipboardSuggest;
+import cn.wycode.web.entity.Clipboard;
 import cn.wycode.web.entity.JsonResult;
-import cn.wycode.web.entity.WXClipboard;
 import cn.wycode.web.entity.WXSession;
-import cn.wycode.web.repository.ClipboardSuggestRepository;
-import cn.wycode.web.repository.WXClipboardRepository;
+import cn.wycode.web.repository.ClipboardRepository;
 import cn.wycode.web.service.WXSessionService;
 import cn.wycode.web.utils.EncryptionUtil;
 import io.swagger.annotations.Api;
@@ -29,27 +27,20 @@ public class ClipboardController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static char[] chars = new char[]{'a', 'b', 'c', 'd', 'e', 'f',
-            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-            't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5',
-            '6', '7', '8', '9'};
-
-    private final WXClipboardRepository wxClipboardRepository;
-    private ClipboardSuggestRepository suggestRepository;
+    private final ClipboardRepository clipboardRepository;
     private final WXSessionService sessionService;
     private final Random random = new Random();
 
     @Autowired
-    public ClipboardController(WXClipboardRepository wxClipboardRepository, ClipboardSuggestRepository suggestRepository, WXSessionService sessionService) {
-        this.wxClipboardRepository = wxClipboardRepository;
-        this.suggestRepository = suggestRepository;
+    public ClipboardController(ClipboardRepository clipboardRepository, WXSessionService sessionService) {
+        this.clipboardRepository = clipboardRepository;
         this.sessionService = sessionService;
     }
 
     @ApiOperation(value = "通过WXKEY查询剪切板")
     @RequestMapping(method = RequestMethod.GET, path = "/queryByKey")
-    public JsonResult<WXClipboard> queryByKey(@RequestParam String key) {
-        WXClipboard p = wxClipboardRepository.findByKey(key);
+    public JsonResult<Clipboard> queryByKey(@RequestParam String key) {
+        Clipboard p = clipboardRepository.findByKey(key);
         if (p == null) {
             return JsonResult.Companion.error("invalid key");
         }
@@ -58,46 +49,48 @@ public class ClipboardController {
 
     @ApiOperation(value = "通过id查询剪切板")
     @RequestMapping(method = RequestMethod.GET, path = "/queryById")
-    public JsonResult<WXClipboard> queryById(@RequestParam String id) {
-        WXClipboard p = wxClipboardRepository.findById(id).orElse(null);
+    public JsonResult<Clipboard> queryById(@RequestParam String id) {
+        Clipboard p = clipboardRepository.findById(id).orElse(null);
         return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "通过ID保存剪切板")
     @RequestMapping(method = RequestMethod.POST, path = "/saveById")
-    public JsonResult<WXClipboard> saveById(@RequestParam String id, @RequestParam String content, @RequestParam String tips) {
-        WXClipboard p = wxClipboardRepository.findById(id).orElse(null);
+    public JsonResult<Clipboard> saveById(@RequestParam String id, @RequestParam String content, @RequestParam String tips) {
+        Clipboard p = clipboardRepository.findById(id).orElse(null);
         if (p != null) {
             p.setContent(content);
             p.setTips(tips);
             p.setLastUpdate(new Date());
-            p = wxClipboardRepository.save(p);
+            p = clipboardRepository.save(p);
         }
         return JsonResult.Companion.data(p);
     }
 
     @ApiOperation(value = "意见反馈")
     @RequestMapping(method = RequestMethod.POST, path = "/suggest")
-    public JsonResult<ClipboardSuggest> suggest(@RequestParam String content, @RequestParam String contact) {
-        ClipboardSuggest suggest = new ClipboardSuggest(new Date(), content, contact);
-        return JsonResult.Companion.data(suggestRepository.save(suggest));
+    @Deprecated // TODO use comment instead, can be remove after mini-app updated
+    public JsonResult<?> suggest(@RequestParam String content, @RequestParam String contact) {
+        return JsonResult.Companion.error("此接口已移除，请联系管理员");
     }
 
     @ApiOperation(value = "获取微信Session")
     @RequestMapping(path = "/getSession", method = RequestMethod.GET)
-    public JsonResult<WXClipboard> getSession(@RequestParam String jsCode) {
+    public JsonResult<Clipboard> getSession(@RequestParam String jsCode) {
         WXSession session = sessionService.getWXSessionForClipboard(jsCode);
         if (session != null) {
             String accessKey = EncryptionUtil.getHash(session.getSession_key(), EncryptionUtil.MD5);
-            WXClipboard clipboard = wxClipboardRepository.findByOpenid(session.getOpenid());
+            Clipboard clipboard = clipboardRepository.findByOpenid(session.getOpenid());
             if (clipboard == null) {
                 String id = generateId();
-                clipboard = new WXClipboard(id, session.getOpenid(), "请输入或粘贴你想保存的内容，内容可在网页端：https://wycode.cn/clipboard.html 使用查询码查询。");
+                clipboard = new Clipboard(id);
+                clipboard.setContent("请输入或粘贴你想保存的内容，内容可在网页端：https://wycode.cn/clipboard.html 使用查询码查询。");
+                clipboard.setOpenid(session.getOpenid());
                 logger.info(clipboard.toString());
             }
             clipboard.setKey(accessKey); //一旦登录就刷新key
 
-            return JsonResult.Companion.data(wxClipboardRepository.save(clipboard));
+            return JsonResult.Companion.data(clipboardRepository.save(clipboard));
         } else {
             return JsonResult.Companion.error("未获取到session");
         }
@@ -105,8 +98,8 @@ public class ClipboardController {
 
     private String generateId() {
         String id = generateShortUuid();
-        while (wxClipboardRepository.existsById(id)) {
-            id += chars[random.nextInt(36)];
+        while (clipboardRepository.existsById(id)) {
+            id += Integer.toString(random.nextInt(36), 36);
         }
         return id;
     }
@@ -118,7 +111,7 @@ public class ClipboardController {
         for (int i = 0; i < 4; i++) { //分成4组，每组8位
             String str = uuid.substring(i * 8, i * 8 + 8);
             long x = Long.parseLong(str, 16);
-            sb.append(chars[(int) (x % 36)]); //对10个数字和26个字母取模
+            sb.append(Integer.toString((int) (x % 36), 36)); //对10个数字和26个字母取模
         }
         return sb.toString();
 
