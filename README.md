@@ -1,3 +1,4 @@
+[![CI](https://github.com/wangyucode/wycode-spring-backend/actions/workflows/main.yml/badge.svg)](https://github.com/wangyucode/wycode-spring-backend/actions/workflows/main.yml)
 ## build
 
 ```bash
