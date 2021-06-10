@@ -4,6 +4,7 @@ import cn.wycode.web.entity.Clipboard;
 import cn.wycode.web.entity.JsonResult;
 import cn.wycode.web.entity.WXSession;
 import cn.wycode.web.repository.ClipboardRepository;
+import cn.wycode.web.service.MailService;
 import cn.wycode.web.service.WXSessionService;
 import cn.wycode.web.utils.EncryptionUtil;
 import io.swagger.annotations.Api;
@@ -29,12 +30,14 @@ public class ClipboardController {
 
     private final ClipboardRepository clipboardRepository;
     private final WXSessionService sessionService;
+    private final MailService mailService;
     private final Random random = new Random();
 
     @Autowired
-    public ClipboardController(ClipboardRepository clipboardRepository, WXSessionService sessionService) {
+    public ClipboardController(ClipboardRepository clipboardRepository, WXSessionService sessionService, MailService mailService) {
         this.clipboardRepository = clipboardRepository;
         this.sessionService = sessionService;
+        this.mailService = mailService;
     }
 
     @ApiOperation(value = "通过WXKEY查询剪切板")
@@ -71,7 +74,12 @@ public class ClipboardController {
     @RequestMapping(method = RequestMethod.POST, path = "/suggest")
     @Deprecated // TODO use comment instead, can be remove after mini-app updated
     public JsonResult<?> suggest(@RequestParam String content, @RequestParam String contact) {
-        return JsonResult.Companion.error("此接口已移除，请联系管理员");
+        mailService.sendSimpleMail("wangyu@wycode.cn",
+                "评论服务通知",
+                "clipboard 有新评论！\n" +
+                        "来自：" + contact + "\n" +
+                        "内容：\n"+content);
+        return JsonResult.Companion.data("此接口已移除，请联系管理员");
     }
 
     @ApiOperation(value = "获取微信Session")
